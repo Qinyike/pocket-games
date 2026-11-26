@@ -56,6 +56,7 @@ button,a {
 }
 
 .topbar {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -868,4 +869,23 @@ body[data-mode=focus] .action-stage canvas {
 
 .game[data-game="trail"] .stage {
   outline-offset: -2px;
+}
+
+#update-status {
+  position: absolute;
+  z-index: 2;
+  top: calc(100% + 5px);
+  right: 0;
+  pointer-events: none;
+  font-size: 13px;
+}
+
+#update-status:not(:empty) {
+  max-width: min(260px, 100%);
+  padding: 8px 12px;
+  border: 1px solid var(--edge);
+  border-radius: 10px;
+  background: #20263a;
+  color: var(--text);
+  box-shadow: 0 6px 15px #10132066;
 }
