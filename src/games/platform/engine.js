@@ -348,6 +348,9 @@ export class PlatformEngine {
   }
 
   step(dt, input = {}) {
+    // 每一步只返回本步产生的事件；否则 UI 会反复播放旧的吃金币/跳跃事件，
+    // 导致音效和粒子越积越多。
+    this.events = [];
     if (this.won || this.gameOver) return this.events;
     const left = Boolean(input.left);
     const right = Boolean(input.right);

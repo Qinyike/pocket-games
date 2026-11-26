@@ -60,3 +60,17 @@ test('简单机器人能跑通全部三个关卡', { timeout: 30_000 }, () => {
     assert.equal(engine.won, true, `第 ${level.id} 关机器人未通关（x=${engine.player.x.toFixed(1)} y=${engine.player.y.toFixed(1)} hearts=${engine.hearts}）`);
   }
 });
+
+test('每一步只返回一次新事件，避免界面重复播放粒子', () => {
+  const engine = new PlatformEngine(PLATFORM_LEVELS[0]);
+  engine.player.x = 6.2;
+  engine.player.y = 9.6;
+  engine.step(1 / 120, { right: true });
+  const first = engine.events.filter((event) => event.type === 'coin');
+  assert.ok(first.length >= 1);
+  const before = engine.coins;
+  for (let i = 0; i < 30; i += 1) engine.step(1 / 120, { right: true });
+  const repeated = engine.events.filter((event) => event.type === 'coin');
+  assert.equal(repeated.length, 0, '旧金币事件不应该重复出现');
+  assert.equal(engine.coins, before);
+});

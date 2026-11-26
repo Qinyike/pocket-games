@@ -6,7 +6,7 @@
  * - 静态资源 cache-first，并在后台更新
  */
 
-const VERSION = 'v1.2.2';
+const VERSION = 'v1.2.3';
 const CACHE = `pocket-games-${VERSION}`;
 const SHELL = [
   './',

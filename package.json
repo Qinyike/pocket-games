@@ -1,6 +1,6 @@
 {
   "name": "pocket-games",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "private": true,
   "type": "module",
   "description": "口袋游戏厅：手机优先、离线可玩的推箱子、俄罗斯方块与横版跳跃",
