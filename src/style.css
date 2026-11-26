@@ -821,3 +821,27 @@ body[data-mode=focus] .action-stage canvas {
     padding-inline: 12px;
   }
 }
+
+.pwa-button {
+  min-width: 44px;
+  padding-inline: 8px;
+  white-space: nowrap;
+}
+
+#install-guide {
+  width: min(360px, calc(100% - 32px));
+  padding: 22px;
+  border: 1px solid var(--edge);
+  border-radius: 16px;
+  background: #20263a;
+  color: inherit;
+}
+
+#install-guide h2 { margin: 0; }
+#install-guide form { text-align: right; }
+#install-guide::backdrop { background: #101320cc; }
+
+@media (max-width: 380px) {
+  .topbar .tools { gap: 4px; }
+  .topbar .brand-mark { display: none; }
+}

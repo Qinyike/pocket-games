@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#101320">
   <meta name="description" content="五款原创街机小游戏。支持触屏、键盘和离线游玩。">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="口袋游戏厅">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" href="./assets/icon-192.png">
   <link rel="icon" href="./assets/icon.svg">
@@ -19,13 +21,20 @@
         <span>口袋游戏厅<small>POCKET ARCADE</small></span>
       </a>
       <div class="tools">
+        <button class="quiet pwa-button" id="install-app" type="button" hidden>安装</button>
+        <button class="quiet pwa-button" id="update-app" type="button" hidden>更新</button>
         <button class="icon-btn" id="sound" type="button" aria-label="开启音效" title="开启音效"></button>
         <button class="icon-btn" id="fullscreen" type="button" aria-label="全屏" title="全屏"></button>
       </div>
     </header>
     <main id="app"></main>
-    <footer class="site-footer"><span>POCKET ARCADE</span><span>触屏 · 键盘 · 离线</span></footer>
+    <footer class="site-footer"><span>POCKET ARCADE</span><span id="offline-status" role="status">支持触屏和键盘</span></footer>
   </div>
+  <dialog id="install-guide" aria-labelledby="install-title">
+    <h2 id="install-title">安装口袋游戏厅</h2>
+    <p>在 Safari 中打开「分享」，选择「添加到主屏幕」。看到「作为网页 App 打开」时，保持开启。</p>
+    <form method="dialog"><button class="quiet">知道了</button></form>
+  </dialog>
   <script type="module" src="./src/app.js"></script>
 </body>
 </html>

@@ -1,5 +1,6 @@
 import { cover } from './art.js';
 import { input, load, save } from './engine.js';
+import { setupPwa } from './pwa.js';
 import { mountTrail } from './games/trail.js';
 import { mountCrates } from './games/crates.js';
 import { mountTanks } from './games/tanks.js';
@@ -201,4 +202,4 @@ function route() {
 }
 window.addEventListener('hashchange', route);
 route();
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
+setupPwa();

@@ -1,27 +1,47 @@
-const CACHE = 'pocket-arcade-rebuild-3.0.0';
+const SCOPE = self.registration.scope;
+const CACHE_PREFIX = `pocket-arcade:${SCOPE}:`;
+const CACHE = `${CACHE_PREFIX}3.0.1`;
 const APP = [
-  './', './index.html', './manifest.webmanifest', './assets/icon.svg', './assets/icon-192.png', './assets/icon-512.png',
-  './src/style.css', './src/app.js', './src/art.js', './src/engine.js',
+  './', './index.html', './manifest.webmanifest',
+  './assets/icon.svg', './assets/icon-192.png', './assets/icon-512.png',
+  './assets/icon-maskable-512.png',
+  './src/style.css', './src/app.js', './src/pwa.js', './src/art.js', './src/engine.js',
   './src/games/trail.js', './src/games/crates.js', './src/games/tanks.js',
   './src/games/blocks.js', './src/games/gomoku.js',
 ];
 
+const HOME = new URL('./', SCOPE);
+const INDEX = new URL('index.html', SCOPE);
+
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(APP)));
+  const requests = APP.map(path => new Request(new URL(path, SCOPE), { cache: 'reload' }));
+  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(requests)));
 });
+
+self.addEventListener('message', event => {
+  if (event.data?.type === 'SKIP_WAITING') event.waitUntil(self.skipWaiting());
+});
+
 self.addEventListener('activate', event => {
   event.waitUntil((async () => {
     const versions = await caches.keys();
-    await Promise.all(versions.filter(key => key.startsWith('pocket-arcade-rebuild-') && key !== CACHE).map(key => caches.delete(key)));
+    await Promise.all(versions
+      .filter(key => key.startsWith(CACHE_PREFIX) && key !== CACHE)
+      .map(key => caches.delete(key)));
     await self.clients.claim();
   })());
 });
+
 self.addEventListener('fetch', event => {
-  const url = new URL(event.request.url);
-  if (event.request.method !== 'GET' || url.origin !== self.location.origin || !url.href.startsWith(self.registration.scope)) return;
+  const { request } = event;
+  const url = new URL(request.url);
+  if (request.method !== 'GET' || !url.href.startsWith(SCOPE)) return;
+
+  const isEntry = url.pathname === HOME.pathname || url.pathname === INDEX.pathname;
+  const key = request.mode === 'navigate' && isEntry ? INDEX : request;
   event.respondWith((async () => {
     const cache = await caches.open(CACHE);
-    const cached = await cache.match(event.request.mode === 'navigate' ? './index.html' : event.request);
-    return cached ?? fetch(event.request);
+    const cached = await cache.match(key);
+    return cached ?? fetch(request);
   })());
 });
