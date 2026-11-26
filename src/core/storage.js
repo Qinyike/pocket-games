@@ -19,6 +19,15 @@ const DEFAULT_STATE = {
     best: {},
     lastLevel: 1,
   },
+  mini: {
+    '2048': { best: 0, plays: 0 },
+    snake: { best: 0, plays: 0 },
+    minesweeper: { wins: 0, best: { easy: null, medium: null, hard: null } },
+    breakout: { best: 0, bestLevel: 1, plays: 0 },
+    gomoku: { wins: 0, losses: 0, draws: 0, bestStreak: 0 },
+    reversi: { wins: 0, losses: 0, draws: 0 },
+    sudoku: { completed: 0, best: { easy: null, medium: null, hard: null } },
+  },
   settings: {
     sound: true,
     music: true,
@@ -49,6 +58,13 @@ function mergeState(raw) {
       ? Math.floor(raw.platform.lastLevel)
       : 1;
   }
+  if (raw.mini && typeof raw.mini === 'object') {
+    for (const key of Object.keys(base.mini)) {
+      const saved = raw.mini[key];
+      if (!saved || typeof saved !== 'object') continue;
+      base.mini[key] = mergeObject(base.mini[key], saved);
+    }
+  }
   if (raw.settings && typeof raw.settings === 'object') {
     base.settings.sound = raw.settings.sound !== false;
     base.settings.music = raw.settings.music !== false;
@@ -64,6 +80,18 @@ function numberOr(value, fallback) {
 function clampLevel(value) {
   const level = Math.floor(numberOr(value, 1));
   return Math.max(1, Math.min(24, level));
+}
+
+function mergeObject(base, raw) {
+  const result = { ...base };
+  for (const [key, value] of Object.entries(raw)) {
+    if (value && typeof value === 'object' && !Array.isArray(value) && base[key] && typeof base[key] === 'object') {
+      result[key] = mergeObject(base[key], value);
+    } else if (value !== undefined) {
+      result[key] = value;
+    }
+  }
+  return result;
 }
 
 function read() {
@@ -102,7 +130,19 @@ export function resetProgress() {
   const fresh = cloneDefaults();
   state.sokoban = fresh.sokoban;
   state.tetris = fresh.tetris;
+  state.platform = fresh.platform;
+  state.mini = fresh.mini;
   state.settings = settings;
+  save();
+}
+
+export function miniState(id) {
+  return state.mini[id];
+}
+
+export function updateMini(id, mutator) {
+  if (!state.mini[id]) return;
+  mutator(state.mini[id]);
   save();
 }
 

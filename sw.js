@@ -6,7 +6,7 @@
  * - 静态资源 cache-first，并在后台更新
  */
 
-const VERSION = 'v1.2.3';
+const VERSION = 'v2.0.0';
 const CACHE = `pocket-games-${VERSION}`;
 const SHELL = [
   './',
@@ -25,12 +25,31 @@ const SHELL = [
   './src/games/platform/engine.js',
   './src/games/platform/levels.js',
   './src/games/platform/game.js',
+  './src/games/mini/screen.js',
+  './src/games/mini/registry.js',
+  './src/games/mini/shared.js',
+  './src/games/mini/g2048/logic.js',
+  './src/games/mini/g2048/game.js',
+  './src/games/mini/snake/logic.js',
+  './src/games/mini/snake/game.js',
+  './src/games/mini/minesweeper/logic.js',
+  './src/games/mini/minesweeper/game.js',
+  './src/games/mini/breakout/logic.js',
+  './src/games/mini/breakout/game.js',
+  './src/games/mini/gomoku/logic.js',
+  './src/games/mini/gomoku/game.js',
+  './src/games/mini/reversi/logic.js',
+  './src/games/mini/reversi/game.js',
+  './src/games/mini/sudoku/logic.js',
+  './src/games/mini/sudoku/game.js',
   './src/core/version.js',
   './src/core/update.js',
   './src/styles/base.css',
   './src/styles/sokoban.css',
   './src/styles/tetris.css',
   './src/styles/platform.css',
+  './src/styles/mini.css',
+  './src/styles/mini-games.css',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
   './assets/icons/maskable-512.png',

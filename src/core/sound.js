@@ -145,6 +145,39 @@ const SOUNDS = {
   fall() {
     tone({ freq: 380, endFreq: 80, type: 'triangle', duration: 0.35, volume: 0.04 });
   },
+  tap() {
+    tone({ freq: 240, endFreq: 190, type: 'triangle', duration: 0.028, volume: 0.018 });
+  },
+  merge() {
+    tone({ freq: 520, type: 'triangle', duration: 0.06, volume: 0.03 });
+    tone({ freq: 780, type: 'sine', duration: 0.08, volume: 0.022, delay: 0.035 });
+  },
+  stone() {
+    tone({ freq: 150, endFreq: 95, type: 'triangle', duration: 0.06, volume: 0.035 });
+  },
+  digit() {
+    tone({ freq: 620, type: 'sine', duration: 0.045, volume: 0.02 });
+  },
+  flag() {
+    tone({ freq: 520, endFreq: 760, type: 'triangle', duration: 0.07, volume: 0.028 });
+  },
+  boom() {
+    tone({ freq: 120, endFreq: 38, type: 'square', duration: 0.38, volume: 0.05 });
+  },
+  brick() {
+    tone({ freq: 700, endFreq: 980, type: 'square', duration: 0.045, volume: 0.018 });
+  },
+  paddle() {
+    tone({ freq: 320, endFreq: 440, type: 'triangle', duration: 0.05, volume: 0.025 });
+  },
+  hint() {
+    [660, 880, 1320].forEach((freq, i) => {
+      tone({ freq, type: 'triangle', duration: 0.11, volume: 0.03, delay: i * 0.05 });
+    });
+  },
+  error() {
+    tone({ freq: 160, endFreq: 110, type: 'square', duration: 0.12, volume: 0.025 });
+  },
 };
 
 export function playSound(name) {
@@ -233,6 +266,38 @@ const TRACKS = {
       [43, 47, 50],
       [38, 42, 45],
       [40, 43, 47],
+      [36, 40, 43],
+    ],
+  },
+  puzzle: {
+    bpm: 92,
+    lead: 'triangle',
+    bassWave: 'sine',
+    drums: false,
+    melody: seq([69, null, 72, null, 76, null, 74, null, 72, null, 69, null, 67, null, 64, null], 4),
+    bass: seq([45, 52, 41, 48, 45, 52, 43, 50], 8),
+    chords: [
+      [45, 48, 52],
+      [41, 45, 48],
+      [48, 52, 55],
+      [43, 47, 50],
+    ],
+  },
+  action: {
+    bpm: 144,
+    lead: 'square',
+    bassWave: 'triangle',
+    drums: true,
+    melody: seq(
+      [74, 77, 81, 77, 74, 72, 69, 66, 74, 77, 81, 84, 81, 77, 74, 72,
+       76, 79, 83, 79, 76, 72, 69, 72, 74, 77, 81, 79, 76, 72, 69, 66],
+      2,
+    ),
+    bass: seq([38, 38, 41, 41, 34, 34, 38, 38, 41, 41, 45, 45, 36, 36, 40, 40], 4),
+    chords: [
+      [38, 41, 45],
+      [34, 38, 41],
+      [41, 45, 48],
       [36, 40, 43],
     ],
   },

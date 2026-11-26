@@ -20,14 +20,26 @@ import { SokobanGame } from './games/sokoban/game.js';
 import { TetrisGame } from './games/tetris/game.js';
 import { PlatformGame } from './games/platform/game.js';
 import { LEVELS } from './games/sokoban/levels.js';
+import { MiniScreen } from './games/mini/screen.js';
+import { MINI_GAMES } from './games/mini/registry.js';
 
 const homeScreen = document.getElementById('screen-home');
 const sokobanScreen = document.getElementById('screen-sokoban');
 const tetrisScreen = document.getElementById('screen-tetris');
 const platformScreen = document.getElementById('screen-platform');
+const miniScreenEl = document.getElementById('screen-mini');
 const sokobanProgressEl = document.getElementById('home-sokoban-progress');
 const tetrisScoreEl = document.getElementById('home-tetris-score');
 const platformProgressEl = document.getElementById('home-platform-progress');
+const miniProgressEls = {
+  '2048': document.getElementById('home-2048'),
+  snake: document.getElementById('home-snake'),
+  minesweeper: document.getElementById('home-minesweeper'),
+  breakout: document.getElementById('home-breakout'),
+  gomoku: document.getElementById('home-gomoku'),
+  reversi: document.getElementById('home-reversi'),
+  sudoku: document.getElementById('home-sudoku'),
+};
 const settingsButton = document.getElementById('open-settings');
 const updateButton = document.getElementById('check-update');
 const updateLabel = document.getElementById('update-label');
@@ -49,6 +61,13 @@ const sokoban = new SokobanGame({
 });
 
 const tetris = new TetrisGame({
+  onExit: () => {
+    location.hash = '#/';
+  },
+  onProgressChange: () => refreshHome(),
+});
+
+const mini = new MiniScreen({
   onExit: () => {
     location.hash = '#/';
   },
@@ -89,6 +108,18 @@ function refreshHome() {
   } else {
     platformProgressEl.textContent = `已通关 ${platformDone} / 3 · 第 ${state.platform.lastLevel} 关`;
   }
+
+  const m = state.mini;
+  if (miniProgressEls['2048']) {
+    miniProgressEls['2048'].textContent = `最高分 ${formatNumber(m['2048']?.best || 0)}`;
+    miniProgressEls.snake.textContent = `最高分 ${formatNumber(m.snake?.best || 0)}`;
+    const ms = m.minesweeper || {};
+    miniProgressEls.minesweeper.textContent = `通关 ${ms.wins || 0} 局`;
+    miniProgressEls.breakout.textContent = `最高分 ${formatNumber(m.breakout?.best || 0)}`;
+    miniProgressEls.gomoku.textContent = `${m.gomoku?.wins || 0} 胜 ${m.gomoku?.losses || 0} 负`;
+    miniProgressEls.reversi.textContent = `${m.reversi?.wins || 0} 胜 ${m.reversi?.losses || 0} 负`;
+    miniProgressEls.sudoku.textContent = `完成 ${m.sudoku?.completed || 0} 局`;
+  }
 }
 
 function parseRoute() {
@@ -98,6 +129,7 @@ function parseRoute() {
   if (name === 'sokoban') return { name: 'sokoban', level: Number(param) || null };
   if (name === 'tetris') return { name: 'tetris' };
   if (name === 'platform') return { name: 'platform', level: Number(param) || null };
+  if (MINI_GAMES[name]) return { name };
   return { name: 'home' };
 }
 
@@ -106,6 +138,7 @@ function showScreen(name) {
   sokobanScreen.hidden = name !== 'sokoban';
   tetrisScreen.hidden = name !== 'tetris';
   platformScreen.hidden = name !== 'platform';
+  miniScreenEl.hidden = name !== 'mini';
   document.body.classList.toggle('in-game', name !== 'home');
 }
 
@@ -113,6 +146,7 @@ function stopAll() {
   sokoban.stop();
   tetris.stop();
   platform.stop();
+  mini.stop();
 }
 
 function syncRoute() {
@@ -134,6 +168,7 @@ function syncRoute() {
     }
     tetris.stop();
     platform.stop();
+    mini.stop();
     showScreen('sokoban');
     currentRoute = 'sokoban';
     sokoban.start(route.level);
@@ -145,6 +180,7 @@ function syncRoute() {
     if (currentRoute === 'tetris' && tetris.active) return;
     sokoban.stop();
     platform.stop();
+    mini.stop();
     showScreen('tetris');
     currentRoute = 'tetris';
     tetris.start();
@@ -159,10 +195,21 @@ function syncRoute() {
     }
     sokoban.stop();
     tetris.stop();
+    mini.stop();
     showScreen('platform');
     currentRoute = 'platform';
     platform.start(route.level);
     startMusic('platform');
+    return;
+  }
+
+  if (MINI_GAMES[route.name]) {
+    sokoban.stop();
+    tetris.stop();
+    platform.stop();
+    showScreen('mini');
+    currentRoute = route.name;
+    mini.open(route.name);
   }
 }
 
@@ -228,7 +275,7 @@ function openSettings() {
         showOverlay({
           kicker: 'RESET',
           title: '清除所有进度？',
-          description: '推箱子、俄罗斯方块和跳跃冒险的记录会一起清空，设置会保留。这个操作不能撤销。',
+          description: '十款游戏的记录会一起清空，设置会保留。这个操作不能撤销。',
           dismissible: true,
           actions: [
             {

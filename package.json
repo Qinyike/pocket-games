@@ -1,14 +1,14 @@
 {
   "name": "pocket-games",
-  "version": "1.2.3",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "口袋游戏厅：手机优先、离线可玩的推箱子、俄罗斯方块与横版跳跃",
+  "description": "口袋游戏厅：十款手机优先、离线可玩的经典小游戏合集",
   "scripts": {
     "dev": "node scripts/dev-server.mjs",
     "test": "node --test",
     "gen:levels": "node scripts/generate-levels.mjs",
-    "check": "node --check src/main.js && node --check src/core/sound.js && node --check src/core/update.js && node --check src/games/sokoban/game.js && node --check src/games/tetris/game.js && node --check src/games/tetris/engine.js && node --check src/games/platform/game.js && node --check src/games/platform/engine.js && node --check scripts/dev-server.mjs"
+    "check": "find src -name '*.js' -print0 | xargs -0 -n1 node --check"
   },
   "keywords": [
     "pwa",

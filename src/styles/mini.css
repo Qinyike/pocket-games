@@ -1,0 +1,358 @@
+/* ─────────────────────────────────────────────────────────────
+   经典小游戏：首页游戏库与通用壳
+   ───────────────────────────────────────────────────────────── */
+
+.section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 28px 2px 12px;
+}
+
+.section-head .eyebrow {
+  margin-bottom: 5px;
+}
+
+.section-head h2 {
+  font-size: 23px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+.section-count {
+  flex: 0 0 auto;
+  color: var(--faint);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.mini-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.mini-card {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  min-height: 76px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 17px;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.025));
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.mini-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.mini-card:active {
+  transform: scale(0.97);
+}
+
+.mini-icon {
+  display: grid;
+  flex: 0 0 40px;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(255, 180, 84, 0.12);
+  color: var(--amber);
+}
+
+.mini-icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.icon-snake {
+  background: rgba(87, 217, 153, 0.12);
+  color: #57d999;
+}
+
+.icon-mine {
+  background: rgba(255, 142, 110, 0.12);
+  color: #ff8e6e;
+}
+
+.icon-breakout {
+  background: rgba(98, 230, 255, 0.12);
+  color: #62e6ff;
+}
+
+.icon-gomoku {
+  background: rgba(167, 139, 250, 0.13);
+  color: #a78bfa;
+}
+
+.icon-reversi {
+  background: rgba(87, 217, 153, 0.1);
+  color: #8be0c0;
+}
+
+.icon-sudoku {
+  background: rgba(143, 176, 255, 0.12);
+  color: #8fb0ff;
+}
+
+.mini-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.mini-info strong {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.mini-info small {
+  overflow: hidden;
+  color: var(--faint);
+  font-size: 9px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.mini-arrow {
+  flex: 0 0 auto;
+  width: 13px;
+  height: 13px;
+  margin-left: auto;
+  color: var(--faint);
+}
+
+@media (min-width: 760px) {
+  .mini-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .mini-card {
+    min-height: 86px;
+  }
+
+  .section-head {
+    margin-top: 34px;
+  }
+
+  .section-head h2 {
+    font-size: 26px;
+  }
+}
+
+/* ───────────────────────── 通用游戏壳 ───────────────────────── */
+
+.mini-screen {
+  background:
+    radial-gradient(85% 50% at 50% -10%, rgba(167, 139, 250, 0.1), transparent 70%),
+    var(--bg);
+}
+
+.mini-hud {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  min-height: 0;
+}
+
+.mini-hud:empty {
+  display: none;
+}
+
+.mini-hud .hud-pill {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  min-height: 31px;
+  padding: 4px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--faint);
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.mini-hud .hud-pill strong {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.mini-hud .hud-pill.is-accent {
+  border-color: rgba(255, 180, 84, 0.3);
+  color: var(--amber);
+}
+
+.mini-hud .hud-pill.is-good {
+  border-color: rgba(87, 217, 153, 0.28);
+  color: var(--green);
+}
+
+.mini-stage {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.mini-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  flex: 0 0 auto;
+  min-height: 0;
+}
+
+.mini-controls:empty {
+  display: none;
+}
+
+.mini-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 48px;
+  min-height: 42px;
+  padding: 0 13px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 13px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.035));
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform 100ms ease, background 100ms ease, border-color 100ms ease;
+}
+
+.mini-btn svg {
+  width: 17px;
+  height: 17px;
+}
+
+.mini-btn:active,
+.mini-btn.is-pressed {
+  transform: translateY(1px) scale(0.96);
+  border-color: rgba(255, 180, 84, 0.45);
+  background: rgba(255, 180, 84, 0.17);
+}
+
+.mini-btn.is-primary {
+  border-color: transparent;
+  background: var(--amber);
+  color: #2a1704;
+}
+
+.mini-btn.is-primary:active {
+  background: #ffc46f;
+}
+
+.mini-btn.is-cyan {
+  border-color: transparent;
+  background: var(--cyan);
+  color: #042027;
+}
+
+.mini-btn.is-active {
+  border-color: rgba(98, 230, 255, 0.5);
+  background: rgba(98, 230, 255, 0.17);
+  color: var(--cyan);
+}
+
+.mini-btn:disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* 通用棋盘 */
+.mini-board {
+  display: grid;
+  gap: 3px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+.mini-board-cell {
+  display: grid;
+  place-items: center;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* 通用弹层主题 */
+.overlay-card.mini-theme {
+  background:
+    radial-gradient(120% 90% at 50% -20%, rgba(167, 139, 250, 0.13), transparent 55%),
+    #121a2c;
+}
+
+/* 横屏：把舞台留给游戏，控制区在右侧 */
+@media (orientation: landscape) and (max-height: 560px) {
+  #screen-mini {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 218px;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "bar bar"
+      "stage hud"
+      "stage controls";
+    gap: 5px 12px;
+    padding-top: calc(var(--safe-top) + 5px);
+    padding-bottom: calc(var(--safe-bottom) + 5px);
+  }
+
+  #screen-mini .game-bar {
+    grid-area: bar;
+  }
+
+  #screen-mini .mini-hud {
+    grid-area: hud;
+    align-self: end;
+    justify-content: flex-start;
+  }
+
+  #screen-mini .mini-stage {
+    grid-area: stage;
+  }
+
+  #screen-mini .mini-controls {
+    grid-area: controls;
+    align-self: start;
+    justify-content: center;
+  }
+
+  #screen-mini .game-hint {
+    display: none;
+  }
+}
