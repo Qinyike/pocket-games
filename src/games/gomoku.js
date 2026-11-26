@@ -103,7 +103,7 @@ export function mountGomoku(api) {
   }
   function place(id,computer=false) {
     if (board[id] || result || (mode==='ai' && turn===2 && !computer)) return;
-    board[id]=turn; history.push(id); api.play(turn===1?420:510);
+    board[id]=turn; history.push(id); api.play(turn === 1 ? 'black' : 'white');
     winning=winLine(board,id,turn);
     if (winning.length) {
       result=turn;
@@ -112,6 +112,7 @@ export function mountGomoku(api) {
     else turn=3-turn;
     render();
     if (result) {
+      api.play(result === 3 ? 'draw' : 'clear');
       const text=result===3?'和棋':result===1?'黑方获胜':'白方获胜';
       api.overlay(text,`本局 ${history.length} 手`,[['再来一局',start],['查看棋盘',api.hideOverlay]]);
     } else if (mode==='ai' && turn===2) timer=setTimeout(() => place(machineMove(board),true),260);
@@ -120,6 +121,7 @@ export function mountGomoku(api) {
     if (!history.length || result) return;
     clearTimeout(timer);
     board[history.pop()]=0;
+    api.play('undo');
     if (mode==='ai') {
       if (turn===1 && history.length) board[history.pop()]=0;
       turn=1;

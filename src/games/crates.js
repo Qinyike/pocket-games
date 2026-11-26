@@ -68,7 +68,7 @@ export function mountCrates(api) {
   }
   function act(action) {
     if (action==='undo') {
-      if (history.length) board=history.pop();
+      if (history.length) { board=history.pop(); api.play('undo'); }
       repeat=null;
       updateDisplay();
       return;
@@ -81,12 +81,15 @@ export function mountCrates(api) {
     if (next===board) return;
     if (action==='left' || action==='right') direction=action==='left'?-1:1;
     history.push(board);
-    if (next.pushes > board.pushes) api.play(390);
+    if (next.pushes > board.pushes) {
+      const [goal] = [...next.boxes].filter(box => !board.boxes.has(box));
+      api.play(board.target.has(goal) ? 'target' : 'push');
+    } else api.play('step');
     board=next; updateDisplay();
     if (!solved(board)) return;
     ended=true; repeat=null;
     best={ ...best,[index]:Math.min(best[index]??Infinity,board.moves) };
-    save('crates',best); updateDisplay(); api.play(790);
+    save('crates',best); updateDisplay(); api.play('clear');
     api.overlay('调度完成', `${board.moves} 步 · 推箱 ${board.pushes} 次`, [
       index<WAREHOUSES.length-1 ? ['下一关',() => start(index+1)] : ['回到第 1 关',() => start(0)],
       ['重玩',() => start(index)],

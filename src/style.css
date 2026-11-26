@@ -845,3 +845,27 @@ body[data-mode=focus] .action-stage canvas {
   .topbar .tools { gap: 4px; }
   .topbar .brand-mark { display: none; }
 }
+
+.game[data-game="trail"] .hud {
+  gap: 4px;
+  justify-content: stretch;
+  padding-inline: 0;
+}
+
+.game[data-game="trail"] .hud span {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  padding: 4px 1px 6px;
+  border-bottom: 2px solid #495747;
+  color: #aebda4;
+  white-space: nowrap;
+}
+
+.game[data-game="trail"] .hud strong {
+  color: #e1f4bb;
+}
+
+.game[data-game="trail"] .stage {
+  outline-offset: -2px;
+}

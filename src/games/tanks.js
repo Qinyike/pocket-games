@@ -78,7 +78,7 @@ export function mountTanks(api) {
     mode='end';
     if (score>record) { record=score; save('tanks',record); }
     hud();
-    api.play(win?760:160);
+    api.play(win ? 'clear' : 'fail');
     const next=win && index<STAGES.length-1;
     api.overlay(win?(next?'防线守住了':'全部防线守住了'):'防线失守',`得分 ${score} · 纪录 ${record}`,[
       next ? ['下一关',() => start(index+1,score)] : ['重新挑战',() => start()],
@@ -89,7 +89,7 @@ export function mountTanks(api) {
     if (unit.cooldown>0) return;
     unit.cooldown=enemy?1.35+Math.random()*.80:.24;
     bullets.push({ x:unit.x+unit.dx*11,y:unit.y+unit.dy*11,dx:unit.dx,dy:unit.dy,enemy });
-    if (!enemy) api.play(290);
+    if (!enemy) api.play('fire');
   }
   function move(unit, dx, dy, distance) {
     const x=clamp(unit.x+dx*distance,9,WIDTH-9), y=clamp(unit.y+dy*distance,9,HEIGHT-9);
@@ -116,16 +116,17 @@ export function mountTanks(api) {
     const wall=walls.find(wall => touches(bullet.x,bullet.y,1.5,wall.x,wall.y));
     if (wall) {
       if (wall.type==='b' && --wall.hp===0) walls=walls.filter(item => item!==wall);
+      if (!bullet.enemy) api.play(wall.type === 'b' ? 'brick' : 'armor');
       effects.push({x:bullet.x,y:bullet.y,life:.19});
       return true;
     }
     const hit=unit => Math.abs(bullet.x-unit.x)<9 && Math.abs(bullet.y-unit.y)<9;
     if (hit(base)) {
-      if (bullet.enemy) { integrity=Math.max(0,integrity-1); hud(); api.play(170); }
+      if (bullet.enemy) { integrity=Math.max(0,integrity-1); hud(); api.play('damage'); }
       return true;
     }
     if (bullet.enemy && hit(player)) {
-      if (player.shield<=0) { stock-=1; effects.push({ ...player,life:.28 }); newPlayer(); hud(); api.play(190); }
+      if (player.shield<=0) { stock-=1; effects.push({ ...player,life:.28 }); newPlayer(); hud(); api.play('damage'); }
       return true;
     }
     if (!bullet.enemy) {
@@ -133,7 +134,7 @@ export function mountTanks(api) {
       if (drone) {
         effects.push({ ...drone,life:.28 });
         drones=drones.filter(item => item!==drone);
-        score+=100; hud(); api.play(595);
+        score+=100; hud(); api.play('blast');
         return true;
       }
     }

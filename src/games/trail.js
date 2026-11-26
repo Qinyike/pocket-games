@@ -11,10 +11,10 @@ export function mountTrail(api) {
   const width = 360, height = 202;
   const canvas = api.canvas(width,height,'风谷探险场景');
   const ctx = canvas.getContext('2d');
-  let index = 0, collected, removed, level, solids, gems, drones, player, checkpoint, death, deaths, camera, mode, elapsed, coyote, buffer;
+  let index = 0, collected, removed, level, solids, gems, drones, player, checkpoint, death, deaths, camera, mode, elapsed, coyote, buffer, clock;
   let records = load('trail', {});
-  const controls = api.controls({ ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',ArrowUp:'jump',KeyW:'jump',Space:'jump',KeyP:'pause',Escape:'pause' }, [
-    ['left','←',false,'左移'],['right','→',false,'右移'],['jump','跳跃',true],['pause','暂停'],
+  const controls = api.controls({ ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',ArrowUp:'jump',KeyW:'jump',Space:'jump',ShiftLeft:'run',ShiftRight:'run',KeyX:'run',KeyP:'pause',Escape:'pause' }, [
+    ['left','←',false,'左移'],['right','→',false,'右移'],['run','加速',false],['jump','跳跃',true],['pause','暂停'],
   ], action => {
     if (action === 'jump') buffer = .13;
     if (action === 'pause') pause();
@@ -23,7 +23,7 @@ export function mountTrail(api) {
   const selectLevel = api.select('选择关卡', TRAILS.map((_,i) => [i,'第 '+(i+1)+' 关']), value => start(Number(value)));
 
   function score() {
-    api.hud(['关卡', (index+1) + ' / ' + TRAILS.length], ['碎片', collected.size + ' / ' + gems.length], ['失足', deaths]);
+    api.hud(['关卡', (index+1) + ' / ' + TRAILS.length], ['碎片', collected.size + ' / ' + gems.length], ['失足', deaths], ['用时', clock + ' 秒']);
   }
   function spawn(x) {
     player = { x,y:142,w:13,h:18,vx:0,vy:0,direction:1,grounded:false };
@@ -42,7 +42,7 @@ export function mountTrail(api) {
     checkpoint = null;
     death = 0;
     deaths = 0;
-    elapsed = 0;
+    elapsed = clock = 0;
     mode = 'play';
     controls.clear();
     spawn(22);
@@ -60,7 +60,7 @@ export function mountTrail(api) {
     death = .55;
     deaths += 1;
     controls.clear();
-    api.play(175);
+    api.play('fall');
     api.message(checkpoint ? '即将从信标处返回' : '即将从起点返回');
     score();
   }
@@ -71,7 +71,7 @@ export function mountTrail(api) {
       records = { ...records, [index]:time };
       save('trail', records);
     }
-    api.play(835);
+    api.play('clear');
     api.overlay(index === TRAILS.length - 1 ? '探险完成' : '抵达出口', `${time} 秒 · 碎片 ${collected.size}/${gems.length} · 最快 ${records[index]} 秒`, [
       index < TRAILS.length-1 ? ['下一关', () => start(index+1)] : ['从头挑战', () => start(0)],
       ['重玩本关', () => start(index)],
@@ -80,6 +80,8 @@ export function mountTrail(api) {
   function update(dt) {
     if (mode !== 'play') return;
     elapsed += dt;
+    const second = Math.floor(elapsed);
+    if (second !== clock) { clock = second; score(); }
     if (death) {
       death -= dt;
       if (death <= 0) { death = 0; spawn(checkpoint ?? 22); api.message(level.name + ' · 抵达出口'); }
@@ -87,7 +89,10 @@ export function mountTrail(api) {
     }
     const axis = Number(controls.held('right')) - Number(controls.held('left'));
     if (axis) player.direction = axis;
-    player.vx += (axis * 127 - player.vx) * Math.min(1,dt*(axis ? 16 : 22));
+    const running = controls.held('run');
+    const speed = axis * (running ? 184 : 132);
+    const acceleration = player.grounded ? (axis ? 930 : 1160) : 640;
+    player.vx += clamp(speed - player.vx, -acceleration * dt, acceleration * dt);
     player.x = clamp(player.x + player.vx*dt, 0, level.ground.at(-1)[1]-player.w);
     for (const block of solids) {
       if (block.oneWay || !overlaps(player, block)) continue;
@@ -97,11 +102,20 @@ export function mountTrail(api) {
     if (player.grounded) coyote = .085;
     else coyote = Math.max(0,coyote-dt);
     if (buffer > 0 && coyote > 0) {
-      player.vy = -310; player.grounded = false; coyote = buffer = 0; api.play(430);
+      player.vy = -321;
+      player.grounded = false;
+      player.cutJump = true;
+      coyote = buffer = 0;
+      api.play('jump');
+    }
+    if (player.cutJump && !controls.held('jump')) {
+      player.vy = Math.max(player.vy, -177);
+      player.cutJump = false;
     }
     buffer = Math.max(0, buffer-dt);
     const oldBottom = player.y + player.h;
     player.vy = Math.min(390, player.vy + 700*dt);
+    const landingSpeed = player.vy;
     player.y += player.vy*dt;
     player.grounded = false;
     for (const block of solids) {
@@ -111,22 +125,26 @@ export function mountTrail(api) {
       else player.y = block.y+block.h;
       player.vy = 0;
     }
+    if (player.grounded) {
+      player.cutJump = false;
+      if (landingSpeed > 165) api.play('land');
+    }
     gems.forEach((gem,id) => {
-      if (!collected.has(id) && overlaps(player,gem)) { collected.add(id); api.play(720); score(); }
+      if (!collected.has(id) && overlaps(player,gem)) { collected.add(id); api.play('collect'); score(); }
     });
     for (const [id, drone] of drones.entries()) {
       const target = { ...drone, x:drone.x + Math.sin(elapsed*2 + id)*8 };
       if (removed.has(id) || !overlaps(player,target)) continue;
       if (oldBottom <= target.y+4) {
-        removed.add(id); player.vy=-190; player.grounded=false; api.play(550);
+        removed.add(id); player.vy=controls.held('jump') ? -238 : -166; player.grounded=false; player.cutJump=false; api.play('stomp');
       } else { lose(); return; }
     }
     if (player.y > 220) { lose(); return; }
     if (!checkpoint && player.x >= level.flag && player.x <= level.flag+28 && player.grounded) {
-      checkpoint=level.flag; api.play(660); api.message('信标已激活');
+      checkpoint=level.flag; api.play('checkpoint'); api.message('信标已激活');
     }
     if (player.x > level.ground.at(-1)[1]-49 && player.y > 110) win();
-    const target = clamp(player.x-125, 0, level.ground.at(-1)[1]-width);
+    const target = clamp(player.x - 137 + player.vx * .16, 0, level.ground.at(-1)[1]-width);
     camera += (target-camera)*Math.min(1,dt*8);
   }
   function draw() {
@@ -137,11 +155,20 @@ export function mountTrail(api) {
       if (block.x + block.w < camera || block.x > camera+width) continue;
       rect(ctx,'#233e3f',block.x,block.y,block.w,block.h);
       rect(ctx,'#92b97d',block.x,block.y,block.w,3);
-      for (let x=block.x+5;x<block.x+block.w-6;x+=13) rect(ctx,'#467257',x,block.y+5,5,2);
+      for (let x = block.x + 5; x < block.x + block.w - 6; x += 13) {
+        rect(ctx,'#467257',x,block.y+5,5,2);
+        if (!block.oneWay) {
+          const drop = 12 + (x % 7);
+          rect(ctx,'#365654',x + 2,block.y + drop,6,2);
+          rect(ctx,'#1c343b',x - 1,block.y + drop + 13,9,3);
+        }
+      }
     }
     gems.forEach(({x,y},id) => {
       if (collected.has(id)) return;
-      rect(ctx,'#f5ba61',x,y,5,8); rect(ctx,'#fff4b2',x+1,y+1,2,3);
+      const lift = Math.round(Math.sin(elapsed * 6 + id) * 2);
+      rect(ctx,'#f5ba61',x,y+lift,5,8);
+      rect(ctx,'#fff4b2',x+1,y+lift+1,2,3);
     });
     drones.forEach((drone,id) => {
       if (removed.has(id)) return;
@@ -154,7 +181,11 @@ export function mountTrail(api) {
     rect(ctx,'#c0ed9d',portal,127,20,35);
     rect(ctx,'#36565b',portal+3,132,14,30);
     rect(ctx,'#78af94',portal+8,138,4,17);
-    if (!death) rover(ctx,player.x+6,player.y+18,1,player.direction,Math.abs(player.vx)>20&&player.grounded&&Math.floor(elapsed*13)%2 ? 2 : 0);
+    if (!death) {
+      const cadence = Math.abs(player.vx) > 150 ? 19 : 12;
+      const stride = !player.grounded ? 1 : Math.abs(player.vx) > 20 ? Math.floor(elapsed * cadence) % 2 * 2 : 0;
+      rover(ctx,player.x+6,player.y+18,1,player.direction,stride);
+    }
     ctx.restore();
   }
   api.restart(() => start(index));

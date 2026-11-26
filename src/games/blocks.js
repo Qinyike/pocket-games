@@ -72,14 +72,14 @@ export function mountBlocks(api) {
     const cells=piece.cells.map(([x,y]) => clockwise?[size-1-y,x]:[y,size-1-x]);
     for (const [dx,dy] of [[0,0],[-1,0],[1,0],[0,-1],[-2,0],[2,0]]) {
       const candidate={...piece,cells,x:piece.x+dx,y:piece.y+dy};
-      if (fits(candidate)) { piece=candidate; resetLock(); return; }
+      if (fits(candidate)) { piece=candidate; resetLock(); api.play('rotate'); return; }
     }
   }
   function end() {
     mode='end';
     if (score>best) { best=score; save('blocks',best); }
     api.overlay('棋盘已满',`得分 ${score} · 消除 ${lines} 行`,[['再来一局',start]]);
-    api.play(150);
+    api.play('fail');
   }
   function settle() {
     if (piece.cells.some(([,y]) => piece.y+y<0)) { end(); return; }
@@ -90,8 +90,8 @@ export function mountBlocks(api) {
       combo+=1; lines+=result.count;
       score+=100*result.count*result.count+25*(combo-1);
       api.message(combo>1?'连消 × '+combo:'消除 '+result.count+' 行');
-      api.play(650+result.count*50);
-    } else { combo=0; api.play(250); }
+      api.play(combo > 1 || result.count >= 3 ? 'combo' : 'line');
+    } else { combo=0; api.play('lock'); }
     if (score>best) save('blocks',score);
     spawn(); hud();
   }
@@ -104,7 +104,8 @@ export function mountBlocks(api) {
     if (action==='pause') { pause(); return; }
     if (action==='left' || action==='right') {
       const dx=action==='left'?-1:1;
-      repeat={action,dx,delay:.16}; shift(dx,0);
+      repeat={action,dx,delay:.16};
+      if (shift(dx,0)) api.play('move');
     } else if (action==='rotate' || action==='counter') rotate(action==='rotate');
     else if (action==='down') { if(lower()) { score+=1; hud(); } gravity=0; }
     else if (action==='drop') {
@@ -115,6 +116,7 @@ export function mountBlocks(api) {
       held=piece.kind;
       if (next===null) spawn(); else newPiece(next);
       usedHold=true;
+      api.play('hold');
     }
   }
   function update(dt) {

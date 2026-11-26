@@ -1,4 +1,5 @@
 import { cover } from './art.js';
+import { createAudio } from './audio.js';
 import { input, load, save } from './engine.js';
 import { setupPwa } from './pwa.js';
 import { mountTrail } from './games/trail.js';
@@ -8,7 +9,7 @@ import { mountBlocks } from './games/blocks.js';
 import { mountGomoku } from './games/gomoku.js';
 
 const games = [
-  { id:'trail', title:'风谷探险', type:'横版跳跃', color:'#c8fa76', action:true, goal:'穿越风谷、暮色矿坑和霜脊，收集能量碎片，抵达出口。', keys:'← → / A D 移动 · 空格 / ↑ 跳跃', mount:mountTrail },
+  { id:'trail', title:'风谷探险', type:'横版跳跃', color:'#c8fa76', action:true, goal:'穿越风谷、暮色矿坑和霜脊，越过断崖、踩落巡逻机，激活信标并抵达出口。', keys:'← → / A D 移动 · Shift / X 加速 · 空格 / ↑ 跳跃，长按跳得更高', mount:mountTrail },
   { id:'crates', title:'仓库调度', type:'推箱解谜', color:'#ffc484', goal:'把每口货箱推上一个标记格。走错可撤销，长按方向键可连续移动。', keys:'方向键 / WASD 移动 · Z 撤销', mount:mountCrates },
   { id:'tanks', title:'钢甲防线', type:'装甲闯关', color:'#a5e7bd', action:true, goal:'驾驶装甲车保护充能核心，击退全部巡逻机。砖墙可打碎，钢墙会挡住火力。', keys:'方向键 / WASD 移动 · 空格开火', mount:mountTanks },
   { id:'blocks', title:'像素落块', type:'落块消行', color:'#bcb1ff', goal:'拼满一行就会消除。每清除五行加速，槽位可以保留一块备用。', keys:'← → 移动 · ↑ 旋转 · ↓ 软降 · 空格硬降 · C 暂存', mount:mountBlocks },
@@ -19,8 +20,8 @@ const app = document.querySelector('#app');
 const sound = document.querySelector('#sound');
 const fullscreen = document.querySelector('#fullscreen');
 let session;
-let audio;
-let muted = !load('sound', false);
+let muted = !load('sound', true);
+const audio = createAudio(!muted);
 const icons = {
   on:'<path d="M3 9v6h4l5 4V5L7 9H3m13-1a5 5 0 0 1 0 8m2-11a9 9 0 0 1 0 14"/>',
   off:'<path d="M3 9v6h4l5 4V5L7 9H3m13 1 5 5m0-5-5 5"/>',
@@ -31,31 +32,13 @@ function setIcon(element, name, label) {
   element.setAttribute('aria-label', label);
   element.title = label;
 }
-function unlock() {
-  if (muted || !window.AudioContext) return;
-  audio ??= new AudioContext();
-  if (audio.state === 'suspended') audio.resume().catch(() => {});
-}
-function play(note = 460) {
-  if (muted || audio?.state !== 'running') return;
-  const start = audio.currentTime;
-  const tone = audio.createOscillator();
-  const gain = audio.createGain();
-  tone.type = 'triangle';
-  tone.frequency.setValueAtTime(note, start);
-  gain.gain.setValueAtTime(.085, start);
-  gain.gain.exponentialRampToValueAtTime(.001, start + .10);
-  tone.connect(gain).connect(audio.destination);
-  tone.start();
-  tone.stop(start + .11);
-}
 function setSound() {
-  setIcon(sound, muted ? 'off' : 'on', muted ? '开启音效' : '关闭音效');
+  setIcon(sound, muted ? 'off' : 'on', muted ? '开启音乐和音效' : '关闭音乐和音效');
   sound.setAttribute('aria-pressed', String(!muted));
 }
 setSound();
 setIcon(fullscreen, 'fullscreen', '全屏');
-sound.onclick = () => { muted = !muted; save('sound', !muted); setSound(); unlock(); play(); };
+sound.onclick = () => { muted = !muted; save('sound', !muted); setSound(); audio.enable(!muted); };
 function toggleFullscreen() {
   if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
   else if (document.documentElement.requestFullscreen && document.fullscreenEnabled) {
@@ -68,8 +51,10 @@ function toggleFocus() {
 }
 fullscreen.hidden = !document.fullscreenEnabled;
 fullscreen.onclick = toggleFullscreen;
-window.addEventListener('pointerdown', unlock, { passive:true });
-window.addEventListener('keydown', unlock);
+window.addEventListener('pointerdown', event => { if (event.pointerType === 'mouse') audio.unlock(); }, { passive:true });
+window.addEventListener('pointerup', audio.unlock, { passive:true });
+window.addEventListener('keydown', audio.unlock);
+document.addEventListener('visibilitychange', audio.sync);
 
 function home() {
   app.innerHTML = `
@@ -87,7 +72,7 @@ function home() {
 
 function gameView(game, signal) {
   app.innerHTML = `
-    <section class="game" style="--accent:${game.color}">
+    <section class="game" data-game="${game.id}" style="--accent:${game.color}">
       <header class="game-header">
         <div class="game-heading"><a class="back" href="#/" aria-label="返回大厅">‹</a><h1>${game.title}</h1></div>
         <div class="row"><div class="mode-choice"></div><button class="quiet display-mode" type="button">专注</button><button class="quiet restart" type="button">重开</button></div>
@@ -119,7 +104,11 @@ function gameView(game, signal) {
     overlay?.remove();
   }
   const api = {
-    signal, stage, play, hideOverlay,
+    signal, stage, play: audio.play,
+    hideOverlay() {
+      hideOverlay();
+      audio.pause(false);
+    },
     select(label, items, selectValue) {
       const menu = document.createElement('select');
       menu.className = 'quiet';
@@ -169,6 +158,7 @@ function gameView(game, signal) {
     overlay(title, subtitle, actions) {
       controls?.clear();
       hideOverlay();
+      audio.pause(true);
       const overlay = document.createElement('section');
       overlay.className = 'overlay';
       overlay.setAttribute('aria-label', title);
@@ -195,6 +185,7 @@ function route() {
   session = new AbortController();
   delete document.body.dataset.mode;
   const game = games.find(item => location.hash === '#/' + item.id);
+  audio.select(game?.id);
   document.title = game ? `${game.title} · 口袋游戏厅` : '口袋游戏厅 · Pocket Arcade';
   if (game) gameView(game, session.signal);
   else home();
