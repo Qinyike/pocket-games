@@ -15,8 +15,13 @@ const DEFAULT_STATE = {
     lastScore: 0,
     bestLines: 0,
   },
+  platform: {
+    best: {},
+    lastLevel: 1,
+  },
   settings: {
     sound: true,
+    music: true,
     haptics: true,
   },
 };
@@ -37,8 +42,16 @@ function mergeState(raw) {
     base.tetris.lastScore = numberOr(raw.tetris.lastScore, 0);
     base.tetris.bestLines = numberOr(raw.tetris.bestLines, 0);
   }
+  if (raw.platform && typeof raw.platform === 'object') {
+    base.platform.best =
+      raw.platform.best && typeof raw.platform.best === 'object' ? raw.platform.best : {};
+    base.platform.lastLevel = raw.platform.lastLevel >= 1 && raw.platform.lastLevel <= 3
+      ? Math.floor(raw.platform.lastLevel)
+      : 1;
+  }
   if (raw.settings && typeof raw.settings === 'object') {
     base.settings.sound = raw.settings.sound !== false;
+    base.settings.music = raw.settings.music !== false;
     base.settings.haptics = raw.settings.haptics !== false;
   }
   return base;
@@ -79,7 +92,7 @@ export function update(mutator) {
 }
 
 export function setSetting(key, value) {
-  if (key !== 'sound' && key !== 'haptics') return;
+  if (key !== 'sound' && key !== 'music' && key !== 'haptics') return;
   state.settings[key] = Boolean(value);
   save();
 }
@@ -117,6 +130,32 @@ export function completeSokobanLevel(id, moves, pushes) {
   }
   save();
   return { firstClear, newBest };
+}
+
+export function setPlatformLastLevel(level) {
+  state.platform.lastLevel = Math.max(1, Math.min(3, Math.floor(level) || 1));
+  save();
+}
+
+export function completePlatformLevel(id, coins, totalCoins, time) {
+  const key = String(id);
+  const previous = state.platform.best[key];
+  const firstClear = !previous;
+  const newBest = !previous || time < previous.time;
+  if (newBest) {
+    state.platform.best[key] = { coins, totalCoins, time };
+  }
+  state.platform.lastLevel = Math.max(1, Math.min(3, id + 1));
+  save();
+  return { firstClear, newBest };
+}
+
+export function platformBest(id) {
+  return state.platform.best[String(id)] || null;
+}
+
+export function platformCompletedCount() {
+  return Object.keys(state.platform.best).length;
 }
 
 export function sokobanBest(id) {

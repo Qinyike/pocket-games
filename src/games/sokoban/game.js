@@ -16,7 +16,7 @@ import {
   sokobanCompletedCount,
   setLastLevel,
 } from '../../core/storage.js';
-import { playSound } from '../../core/sound.js';
+import { playSound, startMusic, stopMusic } from '../../core/sound.js';
 import { vibrate } from '../../core/haptics.js';
 import { showOverlay, hideOverlay, toast, isOverlayOpen } from '../../core/ui.js';
 
@@ -122,6 +122,7 @@ export class SokobanGame {
       document.addEventListener('keydown', this.handleKeydown);
       window.addEventListener('resize', this.handleResize);
       window.addEventListener('orientationchange', this.handleResize);
+      startMusic('sokoban');
     }
     const requested = Number(levelId);
     const index = LEVELS.findIndex((level) => level.id === requested);
@@ -134,6 +135,7 @@ export class SokobanGame {
     window.removeEventListener('resize', this.handleResize);
     window.removeEventListener('orientationchange', this.handleResize);
     window.clearTimeout(this.winTimer);
+    stopMusic();
     this.board.classList.remove('is-won');
     if (isOverlayOpen()) hideOverlay();
   }

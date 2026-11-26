@@ -6,7 +6,7 @@
  * - 静态资源 cache-first，并在后台更新
  */
 
-const VERSION = 'v1.0.1';
+const VERSION = 'v1.2.2';
 const CACHE = `pocket-games-${VERSION}`;
 const SHELL = [
   './',
@@ -22,9 +22,15 @@ const SHELL = [
   './src/games/sokoban/game.js',
   './src/games/tetris/engine.js',
   './src/games/tetris/game.js',
+  './src/games/platform/engine.js',
+  './src/games/platform/levels.js',
+  './src/games/platform/game.js',
+  './src/core/version.js',
+  './src/core/update.js',
   './src/styles/base.css',
   './src/styles/sokoban.css',
   './src/styles/tetris.css',
+  './src/styles/platform.css',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
   './assets/icons/maskable-512.png',
@@ -37,8 +43,23 @@ self.addEventListener('install', (event) => {
     caches
       .open(CACHE)
       .then((cache) => cache.addAll(SHELL))
-      .then(() => self.skipWaiting()),
+      .then(async () => {
+        // 从 v1.0.x 升到带更新按钮的版本时，旧页面没有更新 UI，
+        // 这里直接接管，避免用户卡在旧缓存里。
+        const keys = await caches.keys();
+        const legacy = keys.some(
+          (key) => key !== CACHE && (key.endsWith('-v1.0.0') || key.endsWith('-v1.0.1')),
+        );
+        if (legacy) await self.skipWaiting();
+      }),
   );
+  // 之后的版本更新会进入 waiting，等用户点击「新版本」后再接管。
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener('activate', (event) => {

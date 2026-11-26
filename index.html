@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"
     />
-    <meta name="description" content="口袋游戏厅：推箱子与俄罗斯方块，手机浏览器打开即玩，离线可用。" />
+    <meta name="description" content="口袋游戏厅：推箱子、俄罗斯方块与原创横版跳跃，手机浏览器打开即玩，离线可用。" />
     <meta name="theme-color" content="#0a0f1e" />
     <meta name="color-scheme" content="dark" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -18,7 +18,8 @@
     <link rel="stylesheet" href="./src/styles/base.css" />
     <link rel="stylesheet" href="./src/styles/sokoban.css" />
     <link rel="stylesheet" href="./src/styles/tetris.css" />
-    <title>口袋游戏厅 · 推箱子 & 俄罗斯方块</title>
+    <link rel="stylesheet" href="./src/styles/platform.css" />
+    <title>口袋游戏厅 · 推箱子 · 俄罗斯方块 · 跳跃冒险</title>
   </head>
   <body>
     <div id="app">
@@ -36,7 +37,15 @@
                 <small>POCKET ARCADE</small>
               </span>
             </a>
-            <button id="open-settings" class="icon-btn" type="button" aria-label="设置">
+            <div class="home-tools">
+              <button id="check-update" class="update-btn" type="button" aria-label="检查更新" title="检查更新">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M20 12a8 8 0 0 1-13.7 5.6M4 12a8 8 0 0 1 13.7-5.6M20 5v5h-5M4 19v-5h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span id="update-label">更新</span>
+                <i class="update-dot" aria-hidden="true"></i>
+              </button>
+              <button id="open-settings" class="icon-btn" type="button" aria-label="设置">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path
                   d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z"
@@ -52,13 +61,14 @@
                   stroke-linejoin="round"
                 />
               </svg>
-            </button>
+              </button>
+            </div>
           </header>
 
           <div class="hero">
             <p class="eyebrow"><span></span> OFFLINE · 单机 · 无广告</p>
             <h1>随时来一局，<br /><em>不用联网。</em></h1>
-            <p class="hero-sub">两款经典小游戏，装进口袋。进度只留在这台设备上。</p>
+            <p class="hero-sub">三款经典小游戏，装进口袋。进度只留在这台设备上。</p>
           </div>
 
           <div class="game-grid">
@@ -121,6 +131,40 @@
                 </div>
               </div>
             </a>
+
+            <a class="game-card card-platform" href="#/platform" data-game="platform">
+              <div class="card-art" aria-hidden="true">
+                <div class="plat-art">
+                  <span class="plat-sun"></span>
+                  <span class="plat-cloud pc1"></span>
+                  <span class="plat-cloud pc2"></span>
+                  <span class="plat-hill ph1"></span>
+                  <span class="plat-hill ph2"></span>
+                  <span class="plat-ground"></span>
+                  <span class="plat-block pb1"></span>
+                  <span class="plat-block pb2"></span>
+                  <span class="plat-coin pcoin1"></span>
+                  <span class="plat-coin pcoin2"></span>
+                  <span class="plat-coin pcoin3"></span>
+                  <span class="plat-crystal"></span>
+                  <span class="plat-hero"></span>
+                </div>
+              </div>
+              <div class="card-body">
+                <p class="card-kicker">PLATFORM · 3 关</p>
+                <h2>跳跃冒险</h2>
+                <p class="card-desc">跳过断崖，踩扁小怪，收集金币，把水晶点亮。原创横版关卡，手感轻快。</p>
+                <div class="card-foot">
+                  <span class="card-progress" id="home-platform-progress">尚未出发</span>
+                  <span class="play-pill">
+                    出发
+                    <svg viewBox="0 0 20 20" aria-hidden="true">
+                      <path d="M4 10h11M11 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </span>
+                </div>
+              </div>
+            </a>
           </div>
 
           <footer class="home-foot">
@@ -128,6 +172,8 @@
             <span>离线可玩 · 进度保存在本机</span>
             <span class="dot-sep">·</span>
             <a class="foot-link" href="https://github.com/Qinyike/pocket-games" target="_blank" rel="noreferrer">GitHub 仓库</a>
+            <span class="dot-sep">·</span>
+            <span class="app-version" id="app-version">v1.2.0</span>
           </footer>
         </div>
       </section>
@@ -267,6 +313,68 @@
           </button>
         </div>
       </section>
+
+      <!-- ───────────────────────── 跳跃冒险 ───────────────────────── -->
+      <section id="screen-platform" class="screen game-screen platform-screen" aria-label="跳跃冒险" hidden>
+        <header class="game-bar">
+          <button class="icon-btn" type="button" data-action="home" aria-label="返回大厅">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+          <div class="game-heading">
+            <h2>跳跃冒险</h2>
+            <p id="platform-level-name">第 1 关 · 绿野启程</p>
+          </div>
+          <div class="bar-actions">
+            <button class="icon-btn" type="button" id="platform-pause" aria-label="暂停" title="暂停 (P)">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M8 5v14M16 5v14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+              </svg>
+            </button>
+            <button class="icon-btn" type="button" id="platform-levels" aria-label="选择关卡" title="选择关卡">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 5h6v6H4zM14 5h6v6h-6zM4 15h6v6H4zM14 15h6v6h-6z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+              </svg>
+            </button>
+          </div>
+        </header>
+
+        <div class="platform-hud">
+          <div class="platform-hearts" id="platform-hearts" aria-label="生命值"></div>
+          <div class="platform-chip">
+            <span class="mini-coin" aria-hidden="true"></span>
+            <b id="platform-coins">0/0</b>
+          </div>
+          <div class="platform-chip">
+            <span>时间</span>
+            <b id="platform-time">0:00</b>
+          </div>
+        </div>
+
+        <div class="platform-stage" id="platform-stage">
+          <canvas id="platform-canvas" role="img" aria-label="横版跳跃游戏画面"></canvas>
+        </div>
+
+        <p class="game-hint" id="platform-hint">向右奔跑，跳过缺口，踩扁挡路的小怪。</p>
+
+        <div class="platform-controls" role="group" aria-label="游戏控制">
+          <div class="platform-move">
+            <button class="platform-btn" type="button" data-platform="left" aria-label="向左移动">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              <span>左</span>
+            </button>
+            <button class="platform-btn" type="button" data-platform="right" aria-label="向右移动">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              <span>右</span>
+            </button>
+          </div>
+          <button class="platform-jump" type="button" data-platform="jump" aria-label="跳跃">
+            <span>跳跃</span>
+            <small>JUMP</small>
+          </button>
+        </div>
+      </section>
     </div>
 
     <div id="overlay" class="overlay" hidden>
@@ -280,6 +388,17 @@
       <p style="padding: 24px; color: #fff">这个游戏需要启用 JavaScript 才能运行。</p>
     </noscript>
 
+    <script>
+      // 旧版本没有更新按钮时，收到新 Service Worker 接管后自动刷新一次。
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        let refreshed = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (refreshed) return;
+          refreshed = true;
+          location.reload();
+        });
+      }
+    </script>
     <script type="module" src="./src/main.js"></script>
   </body>
 </html>

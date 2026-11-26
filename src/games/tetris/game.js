@@ -1,5 +1,5 @@
 import { TetrisEngine, COLORS } from './engine.js';
-import { playSound } from '../../core/sound.js';
+import { playSound, startMusic, stopMusic } from '../../core/sound.js';
 import { vibrate } from '../../core/haptics.js';
 import {
   recordTetrisRun,
@@ -148,7 +148,7 @@ export class TetrisGame {
     this.syncHud(true);
     this.renderMini();
     this.render();
-    playSound('pause');
+    startMusic('tetris');
     document.addEventListener('keydown', this.handleKeydown);
     document.addEventListener('keyup', this.handleKeyup);
     document.addEventListener('visibilitychange', this.handleVisibility);
@@ -170,6 +170,7 @@ export class TetrisGame {
     document.removeEventListener('visibilitychange', this.handleVisibility);
     window.removeEventListener('resize', this.handleResize);
     window.removeEventListener('orientationchange', this.handleResize);
+    stopMusic();
     if (isOverlayOpen()) hideOverlay();
   }
 
@@ -351,6 +352,7 @@ export class TetrisGame {
     this.paused = true;
     this.softDropHeld = false;
     this.stopHorizontal();
+    stopMusic();
     playSound('pause');
     this.syncHud(true);
     showOverlay({
@@ -378,6 +380,7 @@ export class TetrisGame {
     this.paused = false;
     this.lastTime = 0;
     this.syncHud(true);
+    startMusic('tetris');
     playSound('pause');
   }
 
@@ -396,7 +399,7 @@ export class TetrisGame {
     this.clearUiCache();
     this.syncHud(true);
     this.renderMini();
-    this.syncHud(true);
+    startMusic('tetris');
   }
 
   handleGameOver() {
@@ -404,6 +407,7 @@ export class TetrisGame {
     this.gameOver = true;
     this.stopHorizontal();
     this.softDropHeld = false;
+    stopMusic();
     playSound('gameover');
     vibrate([20, 60, 20, 60, 60]);
     const { isNewBest, previousHigh } = recordTetrisRun(
