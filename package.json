@@ -1,0 +1,26 @@
+{
+  "name": "pocket-games",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "口袋游戏厅：手机优先、离线可玩的推箱子 + 俄罗斯方块",
+  "scripts": {
+    "dev": "node scripts/dev-server.mjs",
+    "test": "node --test",
+    "gen:levels": "node scripts/generate-levels.mjs",
+    "check": "node --check src/main.js && node --check src/games/sokoban/game.js && node --check src/games/tetris/game.js && node --check src/games/tetris/engine.js && node --check scripts/dev-server.mjs"
+  },
+  "keywords": [
+    "pwa",
+    "game",
+    "sokoban",
+    "tetris",
+    "mobile"
+  ],
+  "homepage": "https://qinyike.github.io/pocket-games/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Qinyike/pocket-games.git"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"
+    />
+    <meta name="description" content="口袋游戏厅：推箱子与俄罗斯方块，手机浏览器打开即玩，离线可用。" />
+    <meta name="theme-color" content="#0a0f1e" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="口袋游戏厅" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./assets/icons/icon-192.png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png" />
+    <link rel="stylesheet" href="./src/styles/base.css" />
+    <link rel="stylesheet" href="./src/styles/sokoban.css" />
+    <link rel="stylesheet" href="./src/styles/tetris.css" />
+    <title>口袋游戏厅 · 推箱子 & 俄罗斯方块</title>
+  </head>
+  <body>
+    <div id="app">
+      <!-- ───────────────────────── 大厅 ───────────────────────── -->
+      <section id="screen-home" class="screen home" aria-label="游戏大厅">
+        <div class="home-bg" aria-hidden="true"></div>
+        <div class="home-shell">
+          <header class="home-top">
+            <a class="brand" href="#/" aria-label="口袋游戏厅首页">
+              <span class="brand-mark" aria-hidden="true">
+                <i></i><i></i><i></i><i></i>
+              </span>
+              <span class="brand-text">
+                口袋游戏厅
+                <small>POCKET ARCADE</small>
+              </span>
+            </a>
+            <button id="open-settings" class="icon-btn" type="button" aria-label="设置">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                />
+                <path
+                  d="M19.4 13.5a7.8 7.8 0 0 0 0-3l2-1.5-2-3.5-2.4 1a7.7 7.7 0 0 0-2.6-1.5L14 2.5h-4L9.6 5a7.7 7.7 0 0 0-2.6 1.5l-2.4-1-2 3.5 2 1.5a7.8 7.8 0 0 0 0 3l-2 1.5 2 3.5 2.4-1a7.7 7.7 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a7.7 7.7 0 0 0 2.6-1.5l2.4 1 2-3.5-2-1.5Z"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+          </header>
+
+          <div class="hero">
+            <p class="eyebrow"><span></span> OFFLINE · 单机 · 无广告</p>
+            <h1>随时来一局，<br /><em>不用联网。</em></h1>
+            <p class="hero-sub">两款经典小游戏，装进口袋。进度只留在这台设备上。</p>
+          </div>
+
+          <div class="game-grid">
+            <a class="game-card card-sokoban" href="#/sokoban" data-game="sokoban">
+              <div class="card-art" aria-hidden="true">
+                <div class="sok-art">
+                  <span class="sok-floor"></span>
+                  <span class="sok-goal g1"></span>
+                  <span class="sok-goal g2"></span>
+                  <span class="sok-crate c1"></span>
+                  <span class="sok-crate c2"></span>
+                  <span class="sok-hero"></span>
+                </div>
+              </div>
+              <div class="card-body">
+                <p class="card-kicker">PUZZLE · 24 关</p>
+                <h2>推箱子</h2>
+                <p class="card-desc">把木箱推到发光的目标点。每一关都验证过可解，慢慢来。</p>
+                <div class="card-foot">
+                  <span class="card-progress" id="home-sokoban-progress">尚未开始</span>
+                  <span class="play-pill">
+                    开始
+                    <svg viewBox="0 0 20 20" aria-hidden="true">
+                      <path d="M4 10h11M11 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </span>
+                </div>
+              </div>
+            </a>
+
+            <a class="game-card card-tetris" href="#/tetris" data-game="tetris">
+              <div class="card-art" aria-hidden="true">
+                <div class="tet-art">
+                  <span class="tet-block t1"></span>
+                  <span class="tet-block t2"></span>
+                  <span class="tet-block t3"></span>
+                  <span class="tet-block t4"></span>
+                  <span class="tet-block t5"></span>
+                  <span class="tet-block t6"></span>
+                  <span class="tet-block t7"></span>
+                  <span class="tet-block t8"></span>
+                  <span class="tet-block t9"></span>
+                  <span class="tet-block t10"></span>
+                  <span class="tet-block t11"></span>
+                  <span class="tet-block t12"></span>
+                </div>
+              </div>
+              <div class="card-body">
+                <p class="card-kicker">ARCADE · 无尽</p>
+                <h2>俄罗斯方块</h2>
+                <p class="card-desc">七种方块，越堆越快。留好那一条缝，打一次漂亮的四行消除。</p>
+                <div class="card-foot">
+                  <span class="card-progress" id="home-tetris-score">最高分 0</span>
+                  <span class="play-pill">
+                    来一局
+                    <svg viewBox="0 0 20 20" aria-hidden="true">
+                      <path d="M4 10h11M11 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </span>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <footer class="home-foot">
+            <span class="offline-dot"></span>
+            <span>离线可玩 · 进度保存在本机</span>
+            <span class="dot-sep">·</span>
+            <a class="foot-link" href="https://github.com/Qinyike/pocket-games" target="_blank" rel="noreferrer">GitHub 仓库</a>
+          </footer>
+        </div>
+      </section>
+
+      <!-- ───────────────────────── 推箱子 ───────────────────────── -->
+      <section id="screen-sokoban" class="screen game-screen" aria-label="推箱子" hidden>
+        <header class="game-bar">
+          <button class="icon-btn" type="button" data-action="home" aria-label="返回大厅">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+          <div class="game-heading">
+            <h2>推箱子</h2>
+            <p id="sokoban-level-name">第 1 关</p>
+          </div>
+          <div class="bar-actions">
+            <button class="icon-btn" type="button" id="sokoban-undo" aria-label="撤销" title="撤销 (Z)" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M9 7H5v-4M5.5 7.2A8 8 0 1 1 4 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+            <button class="icon-btn" type="button" id="sokoban-restart" aria-label="重新开始" title="重新开始 (R)">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+            <button class="icon-btn" type="button" id="sokoban-levels" aria-label="选择关卡" title="选择关卡">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 5h6v6H4zM14 5h6v6h-6zM4 15h6v6H4zM14 15h6v6h-6z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+              </svg>
+            </button>
+          </div>
+        </header>
+
+        <div class="sokoban-stats" aria-label="本局数据">
+          <div class="stat"><span>步数</span><strong id="sokoban-moves">0</strong></div>
+          <div class="stat"><span>推动</span><strong id="sokoban-pushes">0</strong></div>
+          <div class="stat"><span>最佳</span><strong id="sokoban-best">—</strong></div>
+        </div>
+
+        <div class="sokoban-board-wrap" id="sokoban-board-wrap">
+          <div class="sokoban-board" id="sokoban-board" role="application" aria-label="推箱子棋盘，可滑动或使用方向键移动"></div>
+        </div>
+
+        <p class="game-hint" id="sokoban-hint">滑动棋盘移动，把箱子推到发光的目标点。</p>
+
+        <div class="dpad" role="group" aria-label="方向控制">
+          <button class="dpad-btn dpad-up" type="button" data-dir="up" aria-label="上">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button>
+          <button class="dpad-btn dpad-left" type="button" data-dir="left" aria-label="左">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button>
+          <button class="dpad-btn dpad-down" type="button" data-dir="down" aria-label="下">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button>
+          <button class="dpad-btn dpad-right" type="button" data-dir="right" aria-label="右">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- ───────────────────────── 俄罗斯方块 ───────────────────────── -->
+      <section id="screen-tetris" class="screen game-screen" aria-label="俄罗斯方块" hidden>
+        <header class="game-bar">
+          <button class="icon-btn" type="button" data-action="home" aria-label="返回大厅">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+          <div class="game-heading">
+            <h2>俄罗斯方块</h2>
+            <p id="tetris-status">准备开始</p>
+          </div>
+          <div class="bar-actions">
+            <button class="icon-btn" type="button" id="tetris-pause" aria-label="暂停" title="暂停 (P)">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M8 5v14M16 5v14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+              </svg>
+            </button>
+          </div>
+        </header>
+
+        <div class="tetris-top">
+          <div class="mini-panel hold-panel">
+            <p class="mini-label">暂存</p>
+            <canvas id="tetris-hold" width="88" height="56" aria-label="暂存方块"></canvas>
+          </div>
+          <div class="score-panel">
+            <p class="mini-label">分数</p>
+            <strong id="tetris-score">0</strong>
+            <div class="score-meta">
+              <span>等级 <b id="tetris-level">1</b></span>
+              <span>消行 <b id="tetris-lines">0</b></span>
+            </div>
+          </div>
+          <div class="mini-panel next-panel">
+            <p class="mini-label">下一个</p>
+            <canvas id="tetris-next" width="150" height="56" aria-label="后续方块"></canvas>
+          </div>
+        </div>
+
+        <div class="tetris-board-wrap" id="tetris-board-wrap">
+          <canvas id="tetris-board" role="img" aria-label="俄罗斯方块游戏区域"></canvas>
+          <div class="tetris-flash" id="tetris-flash" aria-hidden="true"></div>
+        </div>
+
+        <div class="tetris-pad" role="group" aria-label="游戏控制">
+          <button class="pad-btn" type="button" data-tetris="rotate-ccw" aria-label="逆时针旋转">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7H4V2M4.6 7.2A8 8 0 1 1 4 14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            <span>左转</span>
+          </button>
+          <button class="pad-btn" type="button" data-tetris="left" aria-label="向左移动">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            <span>左移</span>
+          </button>
+          <button class="pad-btn" type="button" data-tetris="right" aria-label="向右移动">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            <span>右移</span>
+          </button>
+          <button class="pad-btn" type="button" data-tetris="rotate-cw" aria-label="顺时针旋转">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 7h5V2M19.4 7.2A8 8 0 1 0 20 14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            <span>右转</span>
+          </button>
+          <button class="pad-btn" type="button" data-tetris="soft-drop" aria-label="加速下落">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6M6 17l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            <span>下落</span>
+          </button>
+          <button class="pad-btn" type="button" data-tetris="hold" aria-label="暂存方块">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" /></svg>
+            <span>暂存</span>
+          </button>
+          <button class="pad-btn pad-btn-wide" type="button" data-tetris="hard-drop" aria-label="直接落下">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 20h14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            <span>落下</span>
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <div id="overlay" class="overlay" hidden>
+      <div class="overlay-scrim" data-overlay-scrim></div>
+      <div class="overlay-card" role="dialog" aria-modal="true" aria-labelledby="overlay-title"></div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <noscript>
+      <p style="padding: 24px; color: #fff">这个游戏需要启用 JavaScript 才能运行。</p>
+    </noscript>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

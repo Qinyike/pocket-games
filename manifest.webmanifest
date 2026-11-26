@@ -1,0 +1,36 @@
+{
+  "id": "./",
+  "name": "口袋游戏厅 · 推箱子 & 俄罗斯方块",
+  "short_name": "口袋游戏厅",
+  "description": "手机优先、离线可玩的单机游戏合集：推箱子与俄罗斯方块。",
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#070c17",
+  "theme_color": "#0a0f1e",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    {
+      "src": "./assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
