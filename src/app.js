@@ -9,7 +9,7 @@ import { mountBlocks } from './games/blocks.js';
 import { mountGomoku } from './games/gomoku.js';
 
 const games = [
-  { id:'trail', title:'风谷探险', type:'横版跳跃', color:'#c8fa76', action:true, goal:'穿越风谷、暮色矿坑和霜脊，越过断崖、踩落巡逻机，激活信标并抵达出口。', keys:'← → / A D 移动 · Shift / X 加速 · 空格 / ↑ 跳跃，长按跳得更高', mount:mountTrail },
+  { id:'trail', title:'风谷探险', type:'横版跳跃', color:'#c8fa76', action:true, goal:'穿越四个区域，踩落巡逻机，从下方顶开补给盒收集碎片或获得护盾。沿途可激活信标，从该处继续。', keys:'← → / A D 移动 · Shift / X 加速 · 空格 / ↑ 跳跃，长按跳得更高', mount:mountTrail },
   { id:'crates', title:'仓库调度', type:'推箱解谜', color:'#ffc484', goal:'把每口货箱推上一个标记格。走错可撤销，长按方向键可连续移动。', keys:'方向键 / WASD 移动 · Z 撤销', mount:mountCrates },
   { id:'tanks', title:'钢甲防线', type:'装甲闯关', color:'#a5e7bd', action:true, goal:'驾驶装甲车保护充能核心，击退全部巡逻机。砖墙可打碎，钢墙会挡住火力。', keys:'方向键 / WASD 移动 · 空格开火', mount:mountTanks },
   { id:'blocks', title:'像素落块', type:'落块消行', color:'#bcb1ff', goal:'拼满一行就会消除。每清除五行加速，槽位可以保留一块备用。', keys:'← → 移动 · ↑ 旋转 · ↓ 软降 · 空格硬降 · C 暂存', mount:mountBlocks },
@@ -37,20 +37,29 @@ function setSound() {
   sound.setAttribute('aria-pressed', String(!muted));
 }
 setSound();
-setIcon(fullscreen, 'fullscreen', '全屏');
 sound.onclick = () => { muted = !muted; save('sound', !muted); setSound(); audio.enable(!muted); };
-function toggleFullscreen() {
-  if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
-  else if (document.documentElement.requestFullscreen && document.fullscreenEnabled) {
-    document.documentElement.requestFullscreen().catch(() => toggleFocus());
-  } else toggleFocus();
+const standalone = matchMedia('(display-mode: standalone)');
+const coarsePointer = matchMedia('(pointer: coarse)');
+
+function updateLobbyFullscreen() {
+  const expanded = Boolean(document.fullscreenElement);
+  fullscreen.hidden = Boolean(app.querySelector('.game'))
+    || standalone.matches || navigator.standalone || coarsePointer.matches || !document.fullscreenEnabled;
+  setIcon(fullscreen, 'fullscreen', expanded ? '退出全屏' : '全屏');
+  fullscreen.setAttribute('aria-pressed', String(expanded));
 }
-function toggleFocus() {
-  if (document.body.dataset.mode) delete document.body.dataset.mode;
-  else document.body.dataset.mode = 'focus';
-}
-fullscreen.hidden = !document.fullscreenEnabled;
-fullscreen.onclick = toggleFullscreen;
+
+fullscreen.onclick = async () => {
+  try {
+    if (document.fullscreenElement) await document.exitFullscreen();
+    else await document.documentElement.requestFullscreen();
+  } catch {
+    updateLobbyFullscreen();
+  }
+};
+document.addEventListener('fullscreenchange', updateLobbyFullscreen);
+standalone.addEventListener?.('change', updateLobbyFullscreen);
+coarsePointer.addEventListener?.('change', updateLobbyFullscreen);
 window.addEventListener('pointerdown', event => { if (event.pointerType === 'mouse') audio.unlock(); }, { passive:true });
 window.addEventListener('pointerup', audio.unlock, { passive:true });
 window.addEventListener('keydown', audio.unlock);
@@ -75,7 +84,7 @@ function gameView(game, signal) {
     <section class="game" data-game="${game.id}" style="--accent:${game.color}">
       <header class="game-header">
         <div class="game-heading"><a class="back" href="#/" aria-label="返回大厅">‹</a><h1>${game.title}</h1></div>
-        <div class="row"><div class="mode-choice"></div><button class="quiet display-mode" type="button">专注</button><button class="quiet restart" type="button">重开</button></div>
+        <div class="row"><div class="mode-choice"></div><button class="quiet display-mode" type="button">全屏</button><button class="quiet restart" type="button">重开</button></div>
       </header>
       <div class="game-grid">
         <div class="play-area">
@@ -92,12 +101,26 @@ function gameView(game, signal) {
   const choice = app.querySelector('.mode-choice');
   let controls;
   const display = app.querySelector('.display-mode');
-  display.onclick = () => {
-    toggleFocus();
-    display.setAttribute('aria-pressed', String(Boolean(document.body.dataset.mode)));
-    display.textContent = document.body.dataset.mode ? '退出专注' : '专注';
+  function updateGameFullscreen() {
+    const expanded = document.body.dataset.mode === 'focus' || Boolean(document.fullscreenElement);
+    display.setAttribute('aria-pressed', String(expanded));
+    display.textContent = expanded ? '退出全屏' : '全屏';
+  }
+  display.onclick = async () => {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen().catch(() => {});
+    } else if (document.body.dataset.mode === 'focus') {
+      delete document.body.dataset.mode;
+    } else {
+      document.body.dataset.mode = 'focus';
+    }
+    updateGameFullscreen();
+    window.scrollTo(0, 0);
+    const target = stage.querySelector('.overlay button, .gomoku-grid [tabindex="0"]') ?? stage;
+    target.focus({ preventScroll:true });
   };
-  display.setAttribute('aria-pressed', 'false');
+  document.addEventListener('fullscreenchange', updateGameFullscreen, { signal });
+  updateGameFullscreen();
   function hideOverlay() {
     const overlay = stage.querySelector('.overlay');
     if (overlay?.contains(document.activeElement)) stage.focus({ preventScroll:true });
@@ -189,6 +212,7 @@ function route() {
   document.title = game ? `${game.title} · 口袋游戏厅` : '口袋游戏厅 · Pocket Arcade';
   if (game) gameView(game, session.signal);
   else home();
+  updateLobbyFullscreen();
   window.scrollTo(0, 0);
 }
 window.addEventListener('hashchange', route);

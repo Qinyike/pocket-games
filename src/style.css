@@ -550,8 +550,12 @@ select.quiet {
   outline-offset: -2px;
 }
 
-body[data-mode=focus] .guide,body[data-mode=focus] .site-footer {
+body[data-mode=focus] .topbar,body[data-mode=focus] .guide,body[data-mode=focus] .site-footer {
   display: none;
+}
+
+body[data-mode=focus] .shell {
+  max-width: 100%;
 }
 
 body[data-mode=focus] .game-grid {

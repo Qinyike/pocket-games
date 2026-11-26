@@ -17,6 +17,7 @@ export function landscape(ctx, width, height, shift = 0, variant = 0) {
     ['#1c454a','#36615e','#51786b','#8ab18a','#f8c975','#315c59','#21464e','#14353e'],
     ['#29374c','#505069','#836579','#bc8b86','#ffc780','#684b66','#483c58','#282c43'],
     ['#253750','#384d68','#5c7c8c','#8fbcb2','#e7ebad','#4c7280','#345365','#203d52'],
+    ['#322f4b','#46455e','#65617d','#9e91a4','#ffbf92','#635775','#454663','#2e384c'],
   ];
   const [sky, middle, haze, horizon, sun, far, near, front] = palettes[variant % palettes.length];
   rect(ctx, sky, 0, 0, width, height);
