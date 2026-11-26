@@ -742,7 +742,6 @@ svg {
   overscroll-behavior: contain;
 }
 
-#screen-tetris ~ .overlay .overlay-card,
 .overlay-card.tetris-theme {
   background:
     radial-gradient(120% 90% at 50% -20%, rgba(98, 230, 255, 0.12), transparent 55%),

@@ -175,6 +175,9 @@ export class SokobanGame {
     this.buildBoard();
     this.updateHud();
     setLastLevel(this.level.id);
+    if (window.location.hash !== `#/sokoban/${this.level.id}`) {
+      history.replaceState(null, '', `#/sokoban/${this.level.id}`);
+    }
     this.handleResize();
 
     const best = sokobanBest(this.level.id);
@@ -383,6 +386,7 @@ export class SokobanGame {
 
   undoMove() {
     if (!this.active || !this.state || isOverlayOpen()) return;
+    window.clearTimeout(this.winTimer);
     if (!undo(this.state)) return;
     this.deadlockWarned = false;
     this.board.classList.remove('is-won');
@@ -395,6 +399,7 @@ export class SokobanGame {
 
   restartLevel() {
     if (!this.active || !this.state) return;
+    window.clearTimeout(this.winTimer);
     reset(this.state);
     this.deadlockWarned = false;
     this.board.classList.remove('is-won');
@@ -406,6 +411,7 @@ export class SokobanGame {
 
   openLevelSelect() {
     if (!this.active) return;
+    window.clearTimeout(this.winTimer);
     const completed = sokobanCompletedCount();
     const buttons = LEVELS.map((level) => {
       const best = sokobanBest(level.id);
