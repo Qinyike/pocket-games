@@ -222,3 +222,24 @@
     text-align: left;
   }
 }
+
+.orientation-hint {
+  position: fixed;
+  z-index: 10;
+  inset-inline: max(12px, env(safe-area-inset-left)) max(12px, env(safe-area-inset-right));
+  top: calc(env(safe-area-inset-top) + 55px);
+  width: max-content;
+  max-width: calc(100% - 32px);
+  margin-inline: auto;
+  pointer-events: none;
+  font-size: 13px;
+  text-align: center;
+}
+
+.orientation-hint:not(:empty) {
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: #222a3ff2;
+  border: 1px solid var(--edge);
+  color: var(--text);
+}

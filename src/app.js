@@ -88,6 +88,28 @@ function home() {
   app.querySelectorAll('.card canvas').forEach((canvas, index) => cover(canvas, games[index].id));
 }
 
+function showOrientationHint(game, hint, signal) {
+  const landscape = matchMedia('(orientation: landscape)');
+  const touch = matchMedia('(any-pointer: coarse)');
+  const phone = matchMedia('(max-width: 600px), (max-height: 600px)');
+  let timer;
+
+  function announce(message) {
+    clearTimeout(timer);
+    hint.textContent = message;
+    timer = setTimeout(() => { hint.textContent = ''; }, 2500);
+  }
+
+  if (touch.matches && phone.matches) {
+    if (game.action && !landscape.matches) announce('横屏可分开左右操作键');
+    if (game.id === 'blocks' && landscape.matches) announce('竖屏可放大落块棋盘');
+  }
+  landscape.addEventListener('change', event => {
+    if (touch.matches) announce(event.matches ? '已切换到横屏布局' : '已切换到竖屏布局');
+  }, { signal });
+  signal.addEventListener('abort', () => clearTimeout(timer), { once:true });
+}
+
 function gameView(game, signal) {
   app.innerHTML = `
     <section class="game" data-game="${game.id}" style="--accent:${game.color}">
@@ -95,6 +117,7 @@ function gameView(game, signal) {
         <div class="game-heading"><a class="back" href="#/" aria-label="返回大厅"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></a><h1>${game.title}</h1></div>
         <div class="row"><div class="mode-choice"></div><button class="quiet display-mode" type="button">全屏</button><button class="quiet restart" type="button">重开</button></div>
       </header>
+      <div class="orientation-hint" role="status" aria-atomic="true"></div>
       <div class="game-grid">
         <div class="play-area">
           ${game.action ? '<div class="controls-settings"><label>键位 <select class="quiet" aria-label="触控键位"><option value="standard">标准</option><option value="large">大键</option><option value="mirror">镜像</option><option value="large-mirror">大键镜像</option></select></label></div>' : ''}
@@ -226,6 +249,7 @@ function gameView(game, signal) {
     },
   };
   game.mount(api);
+  showOrientationHint(game, app.querySelector('.orientation-hint'), signal);
 }
 
 function route() {
