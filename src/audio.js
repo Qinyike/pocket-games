@@ -70,6 +70,21 @@ const tracks = {
     melody:[[64,,67,69,,71,,69],[65,,,67,,64,,62],[64,,69,72,,71,,67],[65,,,62,,59,,62]],
     bass:[45,41,48,43],
   },
+  expedition: {
+    bpm:76, voice:'triangle', rhythm:'quiet', pulse:[0,4],
+    melody:[[64,,,67,,71,,],[65,,69,,,72,,69],[67,,,70,,,74,],[65,,67,,64,,,]],
+    bass:[40,41,43,40],
+  },
+  bastion: {
+    bpm:110, voice:'triangle', rhythm:'drive', pulse:[0,3,6],
+    melody:[[69,,71,72,,76,,72],[67,,,,69,71,,],[71,,74,76,,74,,72],[67,,65,67,,,69,]],
+    bass:[45,43,47,43],
+  },
+  harbor: {
+    bpm:81, voice:'sine', rhythm:'quiet', pulse:[0,5],
+    melody:[[74,,,78,,81,,78],[76,,,,71,,,74],[78,,,81,,83,,79],[76,,74,,71,,,]],
+    bass:[50,47,55,45],
+  },
 };
 
 // Each layer specifies offset, waveform, start and end frequency, duration, and gain.
@@ -129,6 +144,25 @@ const effects = {
   junqi: {
     move:[[0,'noise',700,320,.07,.15],[0,'sine',150,109,.09,.12]],
     clear:[[0,'triangle',247,247,.2,.1],[.14,'triangle',370,370,.25,.13],[.27,'triangle',494,494,.39,.1]],
+  },
+  expedition: {
+    hit:[[0,'noise',870,265,.1,.12],[0,'triangle',202,130,.12,.08]],
+    take:[[0,'sine',390,520,.13,.1],[.08,'triangle',762,890,.16,.08]],
+    clear:[[0,'triangle',520,650,.23,.1],[.14,'sine',780,1040,.34,.13]],
+    fail:[[0,'triangle',231,100,.4,.13]],
+  },
+  bastion: {
+    build:[[0,'triangle',350,470,.14,.12]],
+    wave:[[0,'triangle',210,290,.16,.12],[.13,'sine',418,500,.19,.11]],
+    hit:[[0,'noise',870,260,.075,.085]],
+    clear:[[0,'triangle',392,392,.2,.1],[.13,'sine',784,1047,.38,.12]],
+    fail:[[0,'triangle',182,75,.36,.14]],
+  },
+  harbor: {
+    build:[[0,'noise',530,200,.1,.08],[0,'triangle',290,442,.13,.09]],
+    day:[[0,'sine',390,584,.18,.1]],
+    trade:[[0,'triangle',649,910,.13,.095]],
+    clear:[[0,'triangle',523,523,.23,.1],[.14,'sine',784,1047,.44,.13]],
   },
 };
 

@@ -12,8 +12,14 @@ import { mountCircuit } from './games/circuit.js';
 import { mountDuel } from './games/duel.js';
 import { xiangqi } from './games/xiangqi.js';
 import { junqi } from './games/junqi.js';
+import { mountExpedition } from './games/expedition.js';
+import { mountBastion } from './games/bastion.js';
+import { mountHarbor } from './games/harbor.js';
 
 const games = [
+  { id:'expedition', title:'烬核远征', type:'回合制地牢', color:'#e6a782', campaign:true, goal:'从三种职业中选择。逐层探索，搜集印记，击败两座守门钟并回收烬核。下楼前可用碎银补充药剂。', keys:'点击地块或用方向键移动。点相邻敌人攻击，Q 绝技，E 药剂，空格等待。可点已探索地块沿路线走一步。', mount:mountExpedition },
+  { id:'bastion', title:'群岛防线', type:'策略塔防', color:'#95d8ba', campaign:true, goal:'四张地图各 16 波，合理安排四种塔。每种塔的三级有两种专精，搭配范围伤害、减速和连锁攻击。', keys:'点地块选位，选塔后点建造。战场聚焦时可用方向键选位、回车建塔。', mount:mountBastion },
+  { id:'harbor', title:'潮汐港湾', type:'港口经营', color:'#8cd5df', campaign:true, goal:'从港口铺栈道，连通生产建筑，手动推进每天的生产。完成订单、解锁研究，最终点亮灯城。', keys:'点地图选地，点建筑类型再建造。展开「集市与收支」可买卖物资。', mount:mountHarbor },
   { id:'trail', title:'风谷探险', type:'横版跳跃', color:'#c8fa76', action:true, goal:'穿越十二个区域，踩落巡逻机，从下方顶开补给盒收集碎片或获得护盾。沿途可激活信标，从该处继续。', keys:'← → / A D 移动 · Shift / X 加速 · 空格 / ↑ 跳跃，长按跳得更高', mount:mountTrail },
   { id:'crates', title:'仓库调度', type:'推箱解谜', color:'#ffc484', goal:'把每口货箱推上一个标记格。走错可撤销，长按方向键可连续移动。', keys:'方向键 / WASD 移动 · Z 撤销', mount:mountCrates },
   { id:'tanks', title:'钢甲防线', type:'装甲闯关', color:'#a5e7bd', action:true, goal:'驾驶装甲车保护充能核心，击退全部巡逻机。砖墙可打碎，钢墙会挡住火力。', keys:'方向键 / WASD 移动 · 空格开火', mount:mountTanks },
@@ -142,7 +148,7 @@ function setupGameOrientation(game, view, signal) {
 
 function gameView(game, signal) {
   app.innerHTML = `
-    <section class="game" data-game="${game.id}" style="--accent:${game.color}">
+    <section class="game" data-game="${game.id}" ${game.campaign ? 'data-campaign' : ''} style="--accent:${game.color}">
       <header class="game-header">
         <div class="game-heading"><a class="back" href="#/" aria-label="返回大厅"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></a><h1>${game.title}</h1></div>
         <div class="row"><div class="mode-choice"></div>${game.id === 'trail' ? '<button class="quiet landscape-toggle" type="button" hidden>横屏</button>' : ''}<button class="quiet display-mode" type="button">全屏</button><button class="quiet restart" type="button">重开</button></div>
@@ -152,7 +158,7 @@ function gameView(game, signal) {
         <div class="play-area">
           ${game.action ? '<div class="controls-settings"><label>键位 <select class="quiet" aria-label="触控键位"><option value="standard">标准</option><option value="large">大键</option><option value="mirror">镜像</option><option value="large-mirror">大键镜像</option></select></label></div>' : ''}
           <div class="hud" aria-label="本局状态"></div>
-          <div tabindex="-1" class="stage ${game.action ? 'action-stage' : 'board-stage'}"></div>
+          <div tabindex="-1" class="stage ${game.action ? 'action-stage' : game.campaign ? 'campaign-stage' : 'board-stage'}"></div>
           <div class="touch"><div class="dpad"></div><div class="action-buttons"></div></div>
           <p class="game-message" role="status"></p>
         </div>
@@ -236,9 +242,9 @@ function gameView(game, signal) {
         button.textContent = label;
         button.setAttribute('aria-label', name ?? label);
         button.dataset.action = id;
-        const directional = (game.action || game.id === 'blocks') && ['left','right','up','down'].includes(id);
+        const directional = (game.action || game.id === 'blocks' || game.id === 'expedition') && ['left','right','up','down'].includes(id);
         touch.querySelector(directional ? '.dpad' : '.action-buttons').append(button);
-        if (type === 'toggle') button.onclick = () => { if (active()) action(id, true); };
+        if (type === 'toggle' || type === 'tap') button.onclick = () => { if (active()) action(id, true); };
         else controls.bind(button, id);
       }
       return controls;

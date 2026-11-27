@@ -89,7 +89,7 @@ export function cover(canvas, kind) {
     }
     return;
   }
-  const backgrounds = { crates:'#382947', tanks:'#2a3739', blocks:'#23284f', gomoku:'#624b44', mines:'#204550', circuit:'#47413c', xiangqi:'#583d3e', junqi:'#394b37' };
+  const backgrounds = { crates:'#382947', tanks:'#2a3739', blocks:'#23284f', gomoku:'#624b44', mines:'#204550', circuit:'#47413c', xiangqi:'#583d3e', junqi:'#394b37', expedition:'#432d42', bastion:'#264647', harbor:'#1e4b5d' };
   rect(ctx, backgrounds[kind], 0, 0, w, h);
   for (let x = 0; x < w; x += 8) for (let y = (x % 16) / 2; y < h; y += 8) rect(ctx, '#f4f4ff15', x, y, 1, 1);
   if (kind === 'crates') {
@@ -139,6 +139,36 @@ export function cover(canvas, kind) {
     for (const [x,y,color] of [[46,21,'#e9c496'],[66,21,'#e9c496'],[76,49,'#c47163'],[56,59,'#c47163'],[46,49,'#c47163']]) {
       if (kind==='junqi') rect(ctx,color,x-4,y-3,9,7);
       else { ctx.fillStyle=color; ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2); ctx.fill(); }
+    }
+  } else if (kind === 'expedition') {
+    for(const [x,y,w,h] of [[16,10,32,23],[72,13,28,29],[37,46,38,22],[45,20,31,9],[79,34,9,22],[62,53,20,9]]) {
+      rect(ctx,'#80636e',x,y,w,h);
+      rect(ctx,'#a17d81',x,y,w,2);
+    }
+    rect(ctx,'#e7ad81',24,18,10,10);
+    rect(ctx,'#593e60',26,21,6,4);
+    rect(ctx,'#fac180',86,22,7,12);
+    rect(ctx,'#df8880',56,52,7,10);
+  } else if (kind === 'bastion') {
+    for(const [x,y,w,h] of [[0,42,29,10],[22,20,10,23],[23,20,44,9],[61,23,9,31],[64,46,60,9]]) rect(ctx,'#977763',x,y,w,h);
+    for(const [x,y,c] of [[14,30,'#a8e9a1'],[43,37,'#88d7ff'],[55,12,'#ffc172'],[79,35,'#d6a7fb']]) {
+      rect(ctx,'#152c36',x-6,y-4,13,14);
+      rect(ctx,c,x-4,y-6,9,10);
+      rect(ctx,'#f7de9d',x+4,y-7,10,2);
+    }
+    for(let i=0;i<4;i++) rect(ctx,i===2?'#e26f98':'#e9ad7c',72+i*9,49,5,4);
+  } else if (kind === 'harbor') {
+    for(let x=0;x<124;x+=11) rect(ctx,'#65b5c84a',x,57+x%13,8,1);
+    rect(ctx,'#699b85',0,10,74,30);
+    rect(ctx,'#679b87',22,31,68,18);
+    rect(ctx,'#e6a77d',50,36,58,7);
+    rect(ctx,'#eed4a2',69,25,9,25);
+    rect(ctx,'#fcf2b9',68,22,10,7);
+    rect(ctx,'#d1ede6',82,56,20,6);
+    rect(ctx,'#f9e8b2',90,49,3,9);
+    for(const [x,y] of [[21,20],[33,25],[47,15]]) {
+      rect(ctx,'#d4a6a2',x,y,10,10);
+      rect(ctx,'#f6c191',x-1,y-2,12,3);
     }
   } else {
     rect(ctx, '#ba936c', 29, 5, 65, 64);

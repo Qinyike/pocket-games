@@ -1,0 +1,172 @@
+.game[data-campaign] .play-area {
+  display: block;
+}
+
+.game[data-campaign] .stage {
+  display: block;
+  margin: 0;
+  width: 100%;
+  overflow: visible;
+  background: transparent;
+}
+
+.game[data-campaign] .stage .overlay {
+  position: fixed;
+  z-index: 12;
+}
+
+.campaign {
+  min-width: 0;
+  color: #edf0fb;
+  font-size: 13px;
+}
+
+.campaign-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px 12px;
+  flex-wrap: wrap;
+  margin: 3px 0 9px;
+  font-size: 13px;
+  color: #aab8c9;
+}
+
+.campaign-top strong {
+  font-size: clamp(15px,3vw,19px);
+  color: var(--accent);
+}
+
+.campaign-note {
+  min-height: 2.7em;
+  margin: 5px 0;
+  color: #c5d1e0;
+  line-height: 1.45;
+  font-size: 13px;
+}
+
+.campaign-actions,.bastion-shop,.harbor-shop,.harbor-market {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.campaign .primary,.campaign .quiet {
+  min-height: 42px;
+  padding: 0 9px;
+  font-size: 13px;
+}
+
+.campaign button[aria-pressed=true] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #1d2632;
+}
+
+.campaign details {
+  border-top: 1px solid #343f53;
+  margin: 9px 0 0;
+  padding: 6px 0;
+}
+
+.campaign summary {
+  padding: 3px 0;
+  color: #c1cdde;
+  cursor: pointer;
+}
+
+.campaign ol {
+  margin: 6px 0;
+  padding-inline-start: 22px;
+  color: #b8bfd4;
+  font-size: 12px;
+}
+
+.vault-grid,.harbor-grid {
+  display: grid;
+  padding: 4px;
+  gap: 1px;
+  background: #11192a;
+  border: 1px solid #39465a;
+  border-radius: 7px;
+}
+
+.vault-grid {
+  grid-template-columns: repeat(17,minmax(0,1fr));
+}
+
+.vault-grid button,.harbor-grid button {
+  min-width: 0;
+  width: 100%;
+  aspect-ratio: 1;
+  border: 0;
+  padding: 0;
+  border-radius: 2px;
+  display: grid;
+  place-items: center;
+  line-height: 1;
+  font-weight: 800;
+  font-size: clamp(10px,2.5vw,19px);
+  touch-action: manipulation;
+}
+
+.vault-grid button {background:#141c2d;}
+.vault-grid [data-terrain=floor] {background:#3e4b58;}
+.vault-grid [data-terrain=wall] {background:#2f2d46;box-shadow:inset 0 2px #ffffff12;}
+.vault-grid [data-terrain=object] {background:#584454;color:#ffe0a2;}
+.vault-grid [data-terrain=trap] {background:#65414c;color:#f79d9e;}
+.vault-grid [data-visible=false] {filter:brightness(.68);}
+.vault-grid [data-entity=foe] {background:#9b5367;color:#fff1d7;}
+.vault-grid [data-entity=hero] {background:#e8b784;color:#2a2636;box-shadow:inset 0 0 0 2px #ffe5a5;}
+.game[data-game=expedition] .hud {gap:4px 13px;}
+.game[data-game=expedition] .touch {margin-top:6px;}
+
+.bastion canvas {
+  display: block;
+  background: #253a3e;
+  border-radius: 7px;
+  touch-action: manipulation;
+}
+
+.bastion-shop {margin-top:8px;}
+.harbor-stats {margin-bottom:6px;color:#d4dee6;line-height:1.5;}
+.harbor-grid {grid-template-columns:repeat(9,minmax(0,1fr));}
+.harbor-grid button {
+  aspect-ratio: 1.45;
+  background: #3b5b54;
+  color: var(--building,#86b8a8);
+}
+.harbor-grid [data-ground=water] {background:#234d63;color:#6dabb6;}
+.harbor-grid [data-ground=forest] {background:#2d5c4e;}
+.harbor-grid [data-ground=rock] {background:#525969;}
+.harbor-grid [data-disconnected=true] {filter:brightness(.68);}
+.harbor-grid [data-selected=true] {box-shadow:inset 0 0 0 2px #f5d293;}
+.harbor-contract {
+  margin:8px 0;
+  border-left: 3px solid #7faeae;
+  padding: 4px 7px;
+  color: #d5e6e4;
+  line-height: 1.45;
+}
+
+@media (orientation: landscape) and (max-height:540px) {
+  .campaign {
+    display: grid;
+    grid-template-columns: minmax(0,1.8fr) minmax(145px,1fr);
+    gap: 4px 12px;
+    align-items: start;
+  }
+  .campaign-top,.harbor-stats {grid-column:1/-1;}
+  .campaign :is(.vault-grid,.harbor-grid,canvas) {grid-column:1;grid-row:span 3;}
+  .campaign :is(.campaign-actions,.campaign-note,.bastion-shop,.harbor-contract,.harbor-shop,details) {grid-column:2;}
+  .campaign details {margin-top:2px;}
+  .campaign .campaign-note {min-height:0;}
+  .expedition .vault-grid {grid-row:span 4;}
+  .harbor .harbor-grid {grid-row:span 5;}
+}
+
+@media (max-width: 380px) {
+  .game[data-campaign] .game-header {flex-wrap:wrap;}
+  .campaign .quiet,.campaign .primary {padding-inline:6px;font-size:12px;}
+  .campaign-note {font-size:12px;}
+}
