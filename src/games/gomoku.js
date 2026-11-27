@@ -72,9 +72,11 @@ export function mountGomoku(api) {
   grid.setAttribute('role','group');
   grid.setAttribute('aria-label','五子棋棋盘');
   api.stage.append(grid);
-  const resume=load('gomoku:match',null);
-  let mode=resume?.mode==='local'?'local':'ai';
-  let difficulty=['easy','normal','hard'].includes(resume?.difficulty)?resume.difficulty:'normal';
+  const legacy=load('gomoku:match',null);
+  const keys={ai:'gomoku:ai-match',local:'gomoku:local-match'};
+  let mode='ai';
+  const storedDifficulty=load('gomoku:difficulty',legacy?.difficulty);
+  let difficulty=['easy','normal','hard'].includes(storedDifficulty)?storedDifficulty:'normal';
   let board,history,turn,result,winning,focusId,timer;
   let wins=load('gomoku',0);
   const undo=document.createElement('button');
@@ -97,13 +99,14 @@ export function mountGomoku(api) {
     const next=at(clamp(focusId%SIZE+dx,0,SIZE-1),clamp(Math.floor(focusId/SIZE)+dy,0,SIZE-1));
     cells[next].focus();
   },{signal:api.signal});
-  const selectMode=api.select('对局',[['ai','人机'],['local','双人']],value => { mode=value; start(); });
+  const selectMode=api.select('对局',[['ai','人机'],['local','双人']],value => { mode=value; openMatch(); });
   const selectDifficulty=api.select('五子棋难度',[['easy','入门'],['normal','标准'],['hard','困难']],value => {
     difficulty=value;
+    save('gomoku:difficulty',difficulty);
     persist();
   });
 
-  function persist() { save('gomoku:match',{mode,difficulty,history,turn,result}); }
+  function persist() { save(keys[mode],{history,turn,result}); }
   function scheduleMachine() {
     if (!result && mode==='ai' && turn===2) timer=setTimeout(()=>place(machineMove(board,difficulty),true),260);
   }
@@ -161,19 +164,26 @@ export function mountGomoku(api) {
   };
   api.restart(start);
   api.signal.addEventListener('abort',() => clearTimeout(timer),{once:true});
+  function openMatch() {
+    clearTimeout(timer);
+    api.hideOverlay();
+    const resume=load(keys[mode],null)??(legacy?.mode===mode?legacy:null);
+    if (Array.isArray(resume?.history) && resume.history.length<=SIZE*SIZE
+      && resume.history.every(id=>Number.isInteger(id) && id>=0 && id<SIZE*SIZE)
+      && new Set(resume.history).size===resume.history.length) {
+      history=[...resume.history];
+      board=new Uint8Array(SIZE*SIZE);
+      history.forEach((cell,index)=>{ board[cell]=index%2+1; });
+      turn=resume.turn===2?2:1;
+      result=[1,2,3].includes(resume.result)?resume.result:0;
+      winning=(result===1||result===2)&&history.length?winLine(board,history.at(-1),result):[];
+      setFocus(history.at(-1) ?? at(7,7));
+      persist();
+      render();
+      scheduleMachine();
+    } else start();
+  }
   selectMode(mode);
   selectDifficulty(difficulty);
-  if (Array.isArray(resume?.history) && resume.history.length<=SIZE*SIZE
-    && resume.history.every(id=>Number.isInteger(id) && id>=0 && id<SIZE*SIZE)
-    && new Set(resume.history).size===resume.history.length) {
-    history=resume.history;
-    board=new Uint8Array(SIZE*SIZE);
-    history.forEach((cell,index)=>{ board[cell]=index%2+1; });
-    turn=resume.turn===2?2:1;
-    result=[1,2,3].includes(resume.result)?resume.result:0;
-    winning=(result===1||result===2)&&history.length?winLine(board,history.at(-1),result):[];
-    setFocus(history.at(-1) ?? at(7,7));
-    render();
-    scheduleMachine();
-  } else start();
+  openMatch();
 }

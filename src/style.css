@@ -1094,44 +1094,16 @@ body[data-mode=focus] .game-grid {
 
 .duel-grid {
   width: min(100%, 500px);
-  gap: 2px;
   border-radius: 6px;
 }
-.duel-grid .puzzle-cell {
-  font-size: clamp(10px, 2vw, 24px);
-  border-color: #6c5a45;
-  background: #544635;
-  color: #efe2bf;
-}
-.duel-grid .puzzle-cell[data-piece="0"] {
-  background: #663b3d;
-  border-color: #aa685a;
-  color: #ffceb2;
-}
-.duel-grid .puzzle-cell[data-piece="1"] {
-  background: #313646;
-  border-color: #68748a;
-}
-.duel-grid .puzzle-cell[data-selected=true] {
-  border-color: #fbdb85;
-  box-shadow: inset 0 0 0 1px #fbdb85;
-}
-.duel-grid .puzzle-cell[data-tile=river-bank] { border-bottom: 3px solid #72b3b7; }
+.duel-grid .puzzle-cell { font-size: clamp(10px, 2vw, 24px); }
 .game[data-game=junqi] .duel-grid { width: min(100%, 345px); }
 .game[data-game=junqi] .duel-grid .puzzle-cell { aspect-ratio: 1.55; }
-.duel-grid .puzzle-cell[data-tile=camp] { border-style: dashed; background: #364942; }
-.duel-grid .puzzle-cell[data-tile=rail] { border-style: dashed; }
-.duel-grid .puzzle-cell[data-tile=base] { border-bottom: 3px solid #bba371; }
+
 @media (max-width: 380px) {
   .game[data-game=gomoku] .game-header { flex-wrap: wrap; }
 }
 
-.game[data-game=xiangqi] .duel-grid .puzzle-cell {
-  background: #5d4937;
-  border-color: #775f46;
-}
-.game[data-game=xiangqi] .duel-grid .puzzle-cell[data-tile=river-bank] { border-bottom-color: #72b3b7; }
-.game[data-game=xiangqi] .duel-grid .puzzle-cell[data-selected=true] { border-color: #fbdb85; }
 .game[data-game=xiangqi] .duel-grid .puzzle-cell span {
   width: 83%;
   aspect-ratio: 1;
@@ -1143,3 +1115,88 @@ body[data-mode=focus] .game-grid {
   box-shadow: inset 0 0 0 2px #76503570, 0 2px 2px #252029cc;
 }
 .game[data-game=xiangqi] .duel-grid .puzzle-cell[data-piece="0"] span { color: #862c3a; }
+
+.duel-grid {
+  position: relative;
+  gap: 0;
+  padding: 0;
+  isolation: isolate;
+}
+.game[data-game=xiangqi] .duel-grid { background: #d6aa78; }
+.game[data-game=junqi] .duel-grid { background: #273736; }
+.duel-diagram {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  color: #785130;
+}
+.duel-diagram path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: .035;
+}
+.xiangqi-river {
+  fill: #7a4c32;
+  font-size: .45px;
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-weight: 700;
+}
+.game[data-game=junqi] .duel-diagram { color: #9c9e86; }
+.game[data-game=junqi] .duel-diagram circle,.duel-diagram .junqi-base {
+  fill: #314940;
+  stroke: currentColor;
+  stroke-width: .05;
+}
+.game[data-game=junqi] .duel-diagram .junqi-camp { fill: #477361; }
+.duel-diagram .junqi-base { fill: #6e5c3f; }
+.duel-diagram .junqi-rail-bed { stroke-width: .135; }
+.duel-diagram .junqi-rail-ties { stroke: #394d47; stroke-width: .066; stroke-dasharray: .11 .09; }
+.game:is([data-game=xiangqi],[data-game=junqi]) .duel-grid .puzzle-cell {
+  position: relative;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.game[data-game=xiangqi] .duel-grid .puzzle-cell span { width: 87%; }
+.game[data-game=junqi] .duel-grid .puzzle-cell span {
+  display: grid;
+  place-items: center;
+  width: 88%;
+  height: 77%;
+  border: 1px solid #9ba7b1;
+  border-radius: 3px;
+  background: #3f4b5f;
+  color: #f2e7d1;
+}
+.game[data-game=junqi] .duel-grid .puzzle-cell[data-piece="0"] span {
+  background: #743e44;
+  color: #ffe0bc;
+}
+.game:is([data-game=xiangqi],[data-game=junqi]) .duel-grid .puzzle-cell[data-selected=true] span {
+  outline: 2px solid #ffe296;
+  outline-offset: 1px;
+}
+.duel-grid .puzzle-cell[data-legal=true]::after {
+  content: '';
+  position: absolute;
+  width: 24%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #fff0a7b7;
+  box-shadow: 0 0 0 1px #4b4420;
+}
+.duel-grid .puzzle-cell[data-legal=true][data-piece]:not([data-piece=""])::after {
+  inset: 4%;
+  width: auto;
+  background: transparent;
+  outline: 1px solid #ffe296;
+  box-shadow: none;
+}
+.duel-deploy { margin-top: 6px; }
+@media (orientation: landscape) and (max-height: 540px),
+       (orientation: landscape) and (any-pointer: coarse) {
+  .duel-deploy { grid-area: controls; margin-top: 0; }
+}

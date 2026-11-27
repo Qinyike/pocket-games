@@ -27,8 +27,8 @@ const games = [
   { id:'gomoku', title:'方寸五子', type:'五子棋', color:'#f3bb97', goal:'黑方先行，横、纵或斜向连成五颗即胜。支持三档人机难度或同屏双人。', keys:'点击或轻触落子 · 棋盘聚焦后方向键选格，回车落子', mount:mountGomoku },
   { id:'mines', title:'扫雷', type:'数字推理', color:'#73dfd5', goal:'翻开所有安全格。首次翻格的九宫格安全，数字代表周边雷数。标记正确后可再点已翻开的数字快速展开。', keys:'点击或回车翻格 · 右键或 F 插旗 · 触屏可切换插旗模式', mount:mountMines },
   { id:'circuit', title:'电路接通', type:'连线解谜', color:'#f5ce70', goal:'旋转线路，从中央电源把电送到所有节点。每次重开生成新棋盘。', keys:'方向键选格 · 回车或点击转动', mount:mountCircuit },
-  { id:'xiangqi', title:'中国象棋', type:'本机双人', color:'#f4b18f', goal:'红先黑后。须解将，不能送将或让双方将帅在空线上照面。将死或困毙获胜，长将及重复局面由双方自行处理。', keys:'点击棋子，再点击落点。方向键选格，回车确认。', mount:api=>mountDuel(api,xiangqi) },
-  { id:'junqi', title:'军棋', type:'双人暗棋', color:'#b8df91', goal:'轮流接手，只显示当回合一方的棋面。沿公路走一步，铁路走直线，工兵可在铁路转弯。夺旗或使对方无棋可走即胜。开局自动布阵。', keys:'换手后点「开始回合」；点击己方棋子和目标格。', mount:api=>mountDuel(api,junqi) },
+  { id:'xiangqi', title:'中国象棋', type:'人机 · 双人', color:'#f4b18f', goal:'红先黑后。须解将，不能送将或让双方将帅在空线上照面。将死或困毙获胜。自动处理单方长将与自然限着，其他长捉棋例由双方协商。', keys:'点击棋子，再点击落点。方向键选格，回车确认。', mount:api=>mountDuel(api,xiangqi) },
+  { id:'junqi', title:'军棋', type:'暗棋 · 人机', color:'#b8df91', goal:'默认与电脑打暗棋，也可本机双人。沿公路走一步，铁路走直线，工兵可转弯。司令阵亡后军旗亮明。夺旗或使对方无棋可走即胜。', keys:'开局可点「调整布阵」。点击己方棋子和目标格；双人模式换手后点「开始回合」。', mount:api=>mountDuel(api,junqi) },
 ];
 
 const app = document.querySelector('#app');
