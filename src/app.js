@@ -88,10 +88,13 @@ function home() {
   app.querySelectorAll('.card canvas').forEach((canvas, index) => cover(canvas, games[index].id));
 }
 
-function showOrientationHint(game, hint, signal) {
+function setupGameOrientation(game, view, signal) {
   const landscape = matchMedia('(orientation: landscape)');
   const touch = matchMedia('(any-pointer: coarse)');
   const phone = matchMedia('(max-width: 600px), (max-height: 600px)');
+  const hint = view.querySelector('.orientation-hint');
+  const toggle = view.querySelector('.landscape-toggle');
+  let manual = false;
   let timer;
 
   function announce(message) {
@@ -100,13 +103,40 @@ function showOrientationHint(game, hint, signal) {
     timer = setTimeout(() => { hint.textContent = ''; }, 2500);
   }
 
+  function updateLayout() {
+    if (landscape.matches || !touch.matches) manual = false;
+    view.toggleAttribute('data-rotated', manual);
+    view.toggleAttribute('data-landscape', game.action && touch.matches && (landscape.matches || manual));
+    if (toggle) {
+      toggle.hidden = !touch.matches || landscape.matches;
+      toggle.textContent = manual ? '退出横屏' : '横屏';
+      toggle.setAttribute('aria-pressed', String(manual));
+    }
+  }
+
+  function orientationChanged() {
+    updateLayout();
+    if (touch.matches) announce(landscape.matches ? '已切换到横屏布局' : '已切换到竖屏布局');
+  }
+
+  if (toggle) toggle.onclick = () => {
+    if (landscape.matches || !touch.matches) return;
+    manual = !manual;
+    updateLayout();
+    window.scrollTo(0, 0);
+    const stage = view.querySelector('.stage');
+    (stage.querySelector('.overlay button') ?? stage).focus({ preventScroll:true });
+    announce(manual ? '已切换到横屏布局' : '已切换到竖屏布局');
+  };
+
+  updateLayout();
   if (touch.matches && phone.matches) {
-    if (game.action && !landscape.matches) announce('横屏可分开左右操作键');
+    if (toggle && !landscape.matches) announce('转动手机，或点「横屏」');
+    else if (game.action && !landscape.matches) announce('横屏可分开左右操作键');
     if (game.id === 'blocks' && landscape.matches) announce('竖屏可放大落块棋盘');
   }
-  landscape.addEventListener('change', event => {
-    if (touch.matches) announce(event.matches ? '已切换到横屏布局' : '已切换到竖屏布局');
-  }, { signal });
+  landscape.addEventListener('change', orientationChanged, { signal });
+  touch.addEventListener('change', updateLayout, { signal });
   signal.addEventListener('abort', () => clearTimeout(timer), { once:true });
 }
 
@@ -115,7 +145,7 @@ function gameView(game, signal) {
     <section class="game" data-game="${game.id}" style="--accent:${game.color}">
       <header class="game-header">
         <div class="game-heading"><a class="back" href="#/" aria-label="返回大厅"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></a><h1>${game.title}</h1></div>
-        <div class="row"><div class="mode-choice"></div><button class="quiet display-mode" type="button">全屏</button><button class="quiet restart" type="button">重开</button></div>
+        <div class="row"><div class="mode-choice"></div>${game.id === 'trail' ? '<button class="quiet landscape-toggle" type="button" hidden>横屏</button>' : ''}<button class="quiet display-mode" type="button">全屏</button><button class="quiet restart" type="button">重开</button></div>
       </header>
       <div class="orientation-hint" role="status" aria-atomic="true"></div>
       <div class="game-grid">
@@ -249,7 +279,7 @@ function gameView(game, signal) {
     },
   };
   game.mount(api);
-  showOrientationHint(game, app.querySelector('.orientation-hint'), signal);
+  setupGameOrientation(game, app.querySelector('.game'), signal);
 }
 
 function route() {

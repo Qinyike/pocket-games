@@ -928,79 +928,79 @@ body[data-mode=focus] .game-grid {
   }
 }
 
-@media (orientation: landscape) and (any-pointer: coarse) {
-  .shell:has(.action-stage) { max-width: 100%; }
-  .game:has(.action-stage) .game-grid {
+@media (any-pointer: coarse) {
+  .shell:has(.game[data-landscape]) { max-width: 100%; }
+  .game[data-landscape] .game-grid {
     display: block;
   }
-  .game:has(.action-stage) .guide {
+  .game[data-landscape] .guide {
     display: none;
   }
-  .game .play-area:has(.action-stage) {
-    --control-size: clamp(46px, 5.3vw, 76px);
+  .game[data-landscape] .play-area:has(.action-stage) {
+    --control-size: clamp(46px, calc(var(--layout-width) * .053), 76px);
     --hand-width: calc(var(--control-size) * 3 + 12px);
     display: grid;
     min-width: 0;
     grid-template-columns: var(--hand-width) minmax(0, 1fr) var(--hand-width);
     grid-template-rows: auto minmax(0, 1fr) auto;
     grid-template-areas: "hud hud settings" "left stage right" "message message message";
-    padding: clamp(6px, 1vw, 15px);
+    padding: clamp(6px, calc(var(--layout-width) * .01), 15px);
     gap: 7px;
     align-items: center;
   }
-  .game .play-area[data-controls^=large]:has(.action-stage) {
-    --control-size: clamp(50px, 6.2vw, 88px);
+  .game[data-landscape] .play-area[data-controls^=large]:has(.action-stage) {
+    --control-size: clamp(50px, calc(var(--layout-width) * .062), 88px);
   }
-  .game .play-area[data-controls$=mirror]:has(.action-stage) {
+  .game[data-landscape] .play-area[data-controls$=mirror]:has(.action-stage) {
     grid-template-areas: "settings hud hud" "right stage left" "message message message";
   }
-  .game .play-area:has(.action-stage) .hud {
+  .game[data-landscape] .play-area:has(.action-stage) .hud {
     grid-area: hud;
     min-height: 28px;
     display: flex;
   }
-  .game .play-area:has(.action-stage) .controls-settings { grid-area: settings; }
-  .game .play-area:has(.action-stage) .stage {
+  .game[data-landscape] .play-area:has(.action-stage) .controls-settings { grid-area: settings; }
+  .game[data-landscape] .play-area:has(.action-stage) .stage {
     grid-area: stage;
   }
-  .game .play-area:has(.action-stage) .touch {
+  .game[data-landscape] .play-area:has(.action-stage) .touch {
     display: contents;
   }
-  .game .play-area:has(.action-stage) .touch .action {
+  .game[data-landscape] .play-area:has(.action-stage) .touch .action {
     min-width: var(--control-size);
     min-height: var(--control-size);
   }
-  .game .play-area:has(.action-stage) .dpad {
+  .game[data-landscape] .play-area:has(.action-stage) .dpad {
     grid-area: left;
     align-self: end;
     justify-content: center;
     gap: 5px;
-    padding-bottom: clamp(4px, 2vh, 28px);
+    padding-bottom: clamp(4px, calc(var(--layout-height) * .02), 28px);
     touch-action: none;
   }
-  .game .play-area:has(.action-stage) .dpad:has([data-action=up]) {
+  .game[data-landscape] .play-area:has(.action-stage) .dpad:has([data-action=up]) {
     display: grid;
     grid-template-columns: repeat(3, var(--control-size));
   }
-  .game .play-area:has(.action-stage) .action-buttons {
+  .game[data-landscape] .play-area:has(.action-stage) .action-buttons {
     grid-area: right;
     align-self: end;
     justify-self: stretch;
     flex-direction: row;
     gap: 5px;
-    padding-bottom: clamp(4px, 2vh, 28px);
+    padding-bottom: clamp(4px, calc(var(--layout-height) * .02), 28px);
     touch-action: none;
   }
-  .game .play-area:has(.action-stage) .action-buttons [data-action=pause] {
+  .game[data-landscape] .play-area:has(.action-stage) .action-buttons [data-action=pause] {
     min-width: 44px;
     min-height: 44px;
     order: 2;
   }
-  .game .play-area:has(.action-stage) .game-message {
+  .game[data-landscape] .play-area:has(.action-stage) .game-message {
     grid-area: message;
     text-align: center;
   }
-  .game[data-game=trail] .play-area:has(.action-stage) .touch [data-action=jump] {
+  .game[data-game=trail][data-landscape] .play-area:has(.action-stage) .touch [data-action=jump] {
     min-width: calc(var(--control-size) * 1.18);
   }
 }
