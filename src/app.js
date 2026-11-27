@@ -7,13 +7,22 @@ import { mountCrates } from './games/crates.js';
 import { mountTanks } from './games/tanks.js';
 import { mountBlocks } from './games/blocks.js';
 import { mountGomoku } from './games/gomoku.js';
+import { mountMines } from './games/mines.js';
+import { mountCircuit } from './games/circuit.js';
+import { mountDuel } from './games/duel.js';
+import { xiangqi } from './games/xiangqi.js';
+import { junqi } from './games/junqi.js';
 
 const games = [
-  { id:'trail', title:'风谷探险', type:'横版跳跃', color:'#c8fa76', action:true, goal:'穿越四个区域，踩落巡逻机，从下方顶开补给盒收集碎片或获得护盾。沿途可激活信标，从该处继续。', keys:'← → / A D 移动 · Shift / X 加速 · 空格 / ↑ 跳跃，长按跳得更高', mount:mountTrail },
+  { id:'trail', title:'风谷探险', type:'横版跳跃', color:'#c8fa76', action:true, goal:'穿越十二个区域，踩落巡逻机，从下方顶开补给盒收集碎片或获得护盾。沿途可激活信标，从该处继续。', keys:'← → / A D 移动 · Shift / X 加速 · 空格 / ↑ 跳跃，长按跳得更高', mount:mountTrail },
   { id:'crates', title:'仓库调度', type:'推箱解谜', color:'#ffc484', goal:'把每口货箱推上一个标记格。走错可撤销，长按方向键可连续移动。', keys:'方向键 / WASD 移动 · Z 撤销', mount:mountCrates },
   { id:'tanks', title:'钢甲防线', type:'装甲闯关', color:'#a5e7bd', action:true, goal:'驾驶装甲车保护充能核心，击退全部巡逻机。砖墙可打碎，钢墙会挡住火力。', keys:'方向键 / WASD 移动 · 空格开火', mount:mountTanks },
   { id:'blocks', title:'像素落块', type:'落块消行', color:'#bcb1ff', goal:'拼满一行就会消除。每清除五行加速，槽位可以保留一块备用。', keys:'← → 移动 · ↑ 旋转 · ↓ 软降 · 空格硬降 · C 暂存', mount:mountBlocks },
-  { id:'gomoku', title:'方寸五子', type:'五子棋', color:'#f3bb97', goal:'黑方先行，横、纵或斜向连成五颗即胜。支持人机或同屏双人。', keys:'点击或轻触落子 · 棋盘聚焦后方向键选格，回车落子', mount:mountGomoku },
+  { id:'gomoku', title:'方寸五子', type:'五子棋', color:'#f3bb97', goal:'黑方先行，横、纵或斜向连成五颗即胜。支持三档人机难度或同屏双人。', keys:'点击或轻触落子 · 棋盘聚焦后方向键选格，回车落子', mount:mountGomoku },
+  { id:'mines', title:'扫雷', type:'数字推理', color:'#73dfd5', goal:'翻开所有安全格。首次翻格的九宫格安全，数字代表周边雷数。标记正确后可再点已翻开的数字快速展开。', keys:'点击或回车翻格 · 右键或 F 插旗 · 触屏可切换插旗模式', mount:mountMines },
+  { id:'circuit', title:'电路接通', type:'连线解谜', color:'#f5ce70', goal:'旋转线路，从中央电源把电送到所有节点。每次重开生成新棋盘。', keys:'方向键选格 · 回车或点击转动', mount:mountCircuit },
+  { id:'xiangqi', title:'中国象棋', type:'本机双人', color:'#f4b18f', goal:'红先黑后。须解将，不能送将或让双方将帅在空线上照面。将死或困毙获胜，长将及重复局面由双方自行处理。', keys:'点击棋子，再点击落点。方向键选格，回车确认。', mount:api=>mountDuel(api,xiangqi) },
+  { id:'junqi', title:'军棋', type:'双人暗棋', color:'#b8df91', goal:'轮流接手，只显示当回合一方的棋面。沿公路走一步，铁路走直线，工兵可在铁路转弯。夺旗或使对方无棋可走即胜。开局自动布阵。', keys:'换手后点「开始回合」；点击己方棋子和目标格。', mount:api=>mountDuel(api,junqi) },
 ];
 
 const app = document.querySelector('#app');
@@ -70,7 +79,7 @@ function home() {
     <section class="hero">
       <canvas width="400" height="128" aria-hidden="true"></canvas>
       <div class="hero-copy"><h1>口袋游戏厅</h1>
-      <p>五款小游戏，打开就玩。</p>
+      <p>${games.length} 款小游戏，打开就玩。</p>
       <a class="primary" href="#/trail">玩风谷探险 <span class="arrow-icon" aria-hidden="true"></span></a></div>
     </section>
     <section><div class="section-head"><h2>选个游戏</h2></div>
@@ -83,11 +92,12 @@ function gameView(game, signal) {
   app.innerHTML = `
     <section class="game" data-game="${game.id}" style="--accent:${game.color}">
       <header class="game-header">
-        <div class="game-heading"><a class="back" href="#/" aria-label="返回大厅">‹</a><h1>${game.title}</h1></div>
+        <div class="game-heading"><a class="back" href="#/" aria-label="返回大厅"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></a><h1>${game.title}</h1></div>
         <div class="row"><div class="mode-choice"></div><button class="quiet display-mode" type="button">全屏</button><button class="quiet restart" type="button">重开</button></div>
       </header>
       <div class="game-grid">
         <div class="play-area">
+          ${game.action ? '<div class="controls-settings"><label>键位 <select class="quiet" aria-label="触控键位"><option value="standard">标准</option><option value="large">大键</option><option value="mirror">镜像</option><option value="large-mirror">大键镜像</option></select></label></div>' : ''}
           <div class="hud" aria-label="本局状态"></div>
           <div tabindex="-1" class="stage ${game.action ? 'action-stage' : 'board-stage'}"></div>
           <div class="touch"><div class="dpad"></div><div class="action-buttons"></div></div>
@@ -97,6 +107,19 @@ function gameView(game, signal) {
       </div>
     </section>`;
   const stage = app.querySelector('.stage');
+  const layout = app.querySelector('.controls-settings select');
+  if (layout) {
+    const area = stage.parentElement;
+    const key = game.id + ':controls';
+    const cached = load(key, 'standard');
+    if ([...layout.options].some(option => option.value === cached)) layout.value = cached;
+    area.dataset.controls = layout.value;
+    layout.onchange = () => {
+      area.dataset.controls = layout.value;
+      save(key, layout.value);
+      stage.focus({ preventScroll:true });
+    };
+  }
   const touch = app.querySelector('.touch');
   const choice = app.querySelector('.mode-choice');
   let controls;
@@ -116,7 +139,7 @@ function gameView(game, signal) {
     }
     updateGameFullscreen();
     window.scrollTo(0, 0);
-    const target = stage.querySelector('.overlay button, .gomoku-grid [tabindex="0"]') ?? stage;
+    const target = stage.querySelector('.overlay button, .stage [tabindex="0"]') ?? stage;
     target.focus({ preventScroll:true });
   };
   document.addEventListener('fullscreenchange', updateGameFullscreen, { signal });
@@ -152,7 +175,7 @@ function gameView(game, signal) {
     },
     controls(mapping, commands, action, active) {
       controls = input(signal, mapping, action, active);
-      for (const [id, label, emphasis, name] of commands) {
+      for (const [id, label, emphasis, name, type] of commands) {
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'action' + (emphasis ? ' emphasis' : '');
@@ -161,7 +184,8 @@ function gameView(game, signal) {
         button.dataset.action = id;
         const directional = game.action && ['left','right','up','down'].includes(id);
         touch.querySelector(directional ? '.dpad' : '.action-buttons').append(button);
-        controls.bind(button, id);
+        if (type === 'toggle') button.onclick = () => { if (active()) action(id, true); };
+        else controls.bind(button, id);
       }
       return controls;
     },

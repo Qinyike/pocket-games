@@ -893,3 +893,285 @@ body[data-mode=focus] .action-stage canvas {
   color: var(--text);
   box-shadow: 0 6px 15px #10132066;
 }
+
+.controls-settings {
+  display: flex;
+  justify-content: flex-end;
+  grid-area: settings;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.controls-settings label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.controls-settings .quiet {
+  min-height: 32px;
+  padding-inline: 6px;
+  font-size: 12px;
+}
+
+.mode-choice select {
+  max-width: min(132px, 29vw);
+  text-overflow: ellipsis;
+}
+
+.touch .action[aria-pressed=true] {
+  background: #32452a;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.play-area[data-controls^=large] {
+  --control-size: 62px;
+}
+
+.play-area[data-controls^=large] .touch .action {
+  min-height: var(--control-size);
+  min-width: var(--control-size);
+}
+
+.play-area[data-controls$=mirror] .touch {
+  flex-direction: row-reverse;
+}
+
+@media (orientation: landscape) and (max-height: 540px) {
+  .play-area:has(.action-stage) .controls-settings {
+    grid-area: 1 / 3;
+    z-index: 1;
+    justify-content: center;
+  }
+  .play-area:has(.action-stage) .action-buttons {
+    grid-row: 2 / span 2;
+  }
+}
+
+@media (orientation: landscape) and (any-pointer: coarse) {
+  .shell:has(.action-stage) { max-width: 100%; }
+  .game:has(.action-stage) .game-grid {
+    display: block;
+  }
+  .game:has(.action-stage) .guide {
+    display: none;
+  }
+  .game .play-area:has(.action-stage) {
+    --control-size: clamp(46px, 5.3vw, 76px);
+    --hand-width: calc(var(--control-size) * 3 + 12px);
+    display: grid;
+    min-width: 0;
+    grid-template-columns: var(--hand-width) minmax(0, 1fr) var(--hand-width);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas: "hud hud settings" "left stage right" "message message message";
+    padding: clamp(6px, 1vw, 15px);
+    gap: 7px;
+    align-items: center;
+  }
+  .game .play-area[data-controls^=large]:has(.action-stage) {
+    --control-size: clamp(50px, 6.2vw, 88px);
+  }
+  .game .play-area[data-controls$=mirror]:has(.action-stage) {
+    grid-template-areas: "settings hud hud" "right stage left" "message message message";
+  }
+  .game .play-area:has(.action-stage) .hud {
+    grid-area: hud;
+    min-height: 28px;
+    display: flex;
+  }
+  .game .play-area:has(.action-stage) .controls-settings { grid-area: settings; }
+  .game .play-area:has(.action-stage) .stage {
+    grid-area: stage;
+  }
+  .game .play-area:has(.action-stage) .stage canvas {
+    max-height: max(110px, calc(100dvh - 150px));
+    object-fit: contain;
+  }
+  .game .play-area:has(.action-stage) .touch {
+    display: contents;
+  }
+  .game .play-area:has(.action-stage) .touch .action {
+    min-width: var(--control-size);
+    min-height: var(--control-size);
+  }
+  .game .play-area:has(.action-stage) .dpad {
+    grid-area: left;
+    align-self: end;
+    justify-content: center;
+    gap: 5px;
+    padding-bottom: clamp(4px, 2vh, 28px);
+    touch-action: none;
+  }
+  .game .play-area:has(.action-stage) .dpad:has([data-action=up]) {
+    display: grid;
+    grid-template-columns: repeat(3, var(--control-size));
+  }
+  .game .play-area:has(.action-stage) .action-buttons {
+    grid-area: right;
+    align-self: end;
+    justify-self: stretch;
+    flex-direction: row;
+    gap: 5px;
+    padding-bottom: clamp(4px, 2vh, 28px);
+    touch-action: none;
+  }
+  .game .play-area:has(.action-stage) .action-buttons [data-action=pause] {
+    min-width: 44px;
+    min-height: 44px;
+    order: 2;
+  }
+  .game .play-area:has(.action-stage) .game-message {
+    grid-area: message;
+    text-align: center;
+  }
+  .game[data-game=trail] .play-area:has(.action-stage) .touch [data-action=jump] {
+    min-width: calc(var(--control-size) * 1.18);
+  }
+}
+
+.puzzle-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--columns), minmax(0,1fr));
+  width: min(100%, 510px);
+  padding: 7px;
+  gap: clamp(1px, .4vw, 4px);
+  background: #262d40;
+  touch-action: manipulation;
+}
+
+.puzzle-cell {
+  --cell-ink: #b6c5d5;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  padding: 0;
+  aspect-ratio: 1;
+  border-radius: 4px;
+  border: 1px solid #55627c;
+  background: #39465d;
+  color: var(--cell-ink);
+  font-size: clamp(10px, 2.3vw, 23px);
+  line-height: 1;
+  font-weight: 800;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.puzzle-cell:focus-visible { z-index: 1; }
+.puzzle-cell[data-open=true] { background: #1e293a; border-color: #323f56; }
+.puzzle-cell[data-mark=flag] { --cell-ink: #ffe298; }
+.puzzle-cell[data-mark=mine],.puzzle-cell[data-mark=hit] { --cell-ink: #ffa499; }
+.puzzle-cell[data-mark=hit] { background: #633642; }
+.puzzle-cell[data-number="1"] { --cell-ink: #8ecaff; }
+.puzzle-cell[data-number="2"] { --cell-ink: #99dda5; }
+.puzzle-cell[data-number="3"] { --cell-ink: #ffc290; }
+.puzzle-cell[data-number="4"] { --cell-ink: #d7b0ff; }
+.puzzle-cell[data-number="5"],.puzzle-cell[data-number="6"],.puzzle-cell[data-number="7"],.puzzle-cell[data-number="8"] { --cell-ink: #ffa8a8; }
+.puzzle-mode { display: block; margin: 9px auto 0; }
+.game[data-game=circuit] .puzzle-grid { gap: 1px; }
+.game[data-game=circuit] .puzzle-cell { border-color: #444e60; background: #283245; --cell-ink: #8697ae; }
+.game[data-game=circuit] .puzzle-cell[data-lit=true] { --cell-ink: #f5ce70; background: #3e3940; }
+.game[data-game=circuit] .puzzle-cell[data-source=true] { --cell-ink: #aef1a4; }
+.game[data-game=circuit] svg { width: 100%; pointer-events: none; }
+.game[data-game=circuit] svg path { fill: none; stroke: currentColor; stroke-width: 2.5; }
+.game[data-game=circuit] svg circle { fill: currentColor; }
+
+@media (orientation: landscape) and (max-height: 540px) {
+  .puzzle-grid { width: min(100%, calc(100dvh - 90px)); }
+  .puzzle-mode { grid-column: 3; grid-row: 1; margin: 0; padding-inline: 5px; font-size: 11px; }
+}
+
+.back svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: none;
+}
+
+.gomoku-grid {
+  grid-template-rows: repeat(15, minmax(0, 1fr));
+  grid-template-columns: repeat(15, minmax(0, 1fr));
+}
+
+.intersection[data-stone]::after {
+  inset: auto;
+  top: 50%;
+  left: 50%;
+  width: 74%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+}
+
+.intersection[data-win]::after {
+  outline: none;
+  box-shadow: inset 0 0 0 2px #fa886d, 0 2px 3px #2c2116b5;
+}
+
+.stage .overlay { z-index: 5; }
+
+.game[data-game=gomoku] .mode-choice {
+  display: flex;
+  gap: 4px;
+}
+.game[data-game=gomoku] .mode-choice select { max-width: 22vw; }
+
+.duel-grid {
+  width: min(100%, 500px);
+  gap: 2px;
+  border-radius: 6px;
+}
+.duel-grid .puzzle-cell {
+  font-size: clamp(10px, 2vw, 24px);
+  border-color: #6c5a45;
+  background: #544635;
+  color: #efe2bf;
+}
+.duel-grid .puzzle-cell[data-piece="0"] {
+  background: #663b3d;
+  border-color: #aa685a;
+  color: #ffceb2;
+}
+.duel-grid .puzzle-cell[data-piece="1"] {
+  background: #313646;
+  border-color: #68748a;
+}
+.duel-grid .puzzle-cell[data-selected=true] {
+  border-color: #fbdb85;
+  box-shadow: inset 0 0 0 1px #fbdb85;
+}
+.duel-grid .puzzle-cell[data-tile=river-bank] { border-bottom: 3px solid #72b3b7; }
+.game[data-game=junqi] .duel-grid { width: min(100%, 345px); }
+.game[data-game=junqi] .duel-grid .puzzle-cell { aspect-ratio: 1.55; }
+.duel-grid .puzzle-cell[data-tile=camp] { border-style: dashed; background: #364942; }
+.duel-grid .puzzle-cell[data-tile=rail] { border-style: dashed; }
+.duel-grid .puzzle-cell[data-tile=base] { border-bottom: 3px solid #bba371; }
+@media (orientation: landscape) and (max-height: 540px) {
+  .game[data-game=xiangqi] .duel-grid,.game[data-game=junqi] .duel-grid {
+    width: min(100%, calc(100dvh - 106px));
+  }
+}
+@media (max-width: 380px) {
+  .game[data-game=gomoku] .game-header { flex-wrap: wrap; }
+}
+
+.game[data-game=xiangqi] .duel-grid .puzzle-cell {
+  background: #5d4937;
+  border-color: #775f46;
+}
+.game[data-game=xiangqi] .duel-grid .puzzle-cell[data-tile=river-bank] { border-bottom-color: #72b3b7; }
+.game[data-game=xiangqi] .duel-grid .puzzle-cell[data-selected=true] { border-color: #fbdb85; }
+.game[data-game=xiangqi] .duel-grid .puzzle-cell span {
+  width: 83%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #222938;
+  background: #ebcb9b;
+  box-shadow: inset 0 0 0 2px #76503570, 0 2px 2px #252029cc;
+}
+.game[data-game=xiangqi] .duel-grid .puzzle-cell[data-piece="0"] span { color: #862c3a; }

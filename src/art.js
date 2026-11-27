@@ -89,7 +89,7 @@ export function cover(canvas, kind) {
     }
     return;
   }
-  const backgrounds = { crates:'#382947', tanks:'#2a3739', blocks:'#23284f', gomoku:'#624b44' };
+  const backgrounds = { crates:'#382947', tanks:'#2a3739', blocks:'#23284f', gomoku:'#624b44', mines:'#204550', circuit:'#47413c', xiangqi:'#583d3e', junqi:'#394b37' };
   rect(ctx, backgrounds[kind], 0, 0, w, h);
   for (let x = 0; x < w; x += 8) for (let y = (x % 16) / 2; y < h; y += 8) rect(ctx, '#f4f4ff15', x, y, 1, 1);
   if (kind === 'crates') {
@@ -111,6 +111,35 @@ export function cover(canvas, kind) {
   } else if (kind === 'blocks') {
     const pieces = [[26,42,'#74d8a8'],[36,42,'#74d8a8'],[36,32,'#74d8a8'],[46,32,'#74d8a8'],[56,42,'#d290df'],[66,42,'#d290df'],[76,42,'#d290df'],[66,32,'#d290df'],[86,42,'#a1abfa'],[86,32,'#a1abfa'],[86,22,'#a1abfa'],[96,22,'#a1abfa'],[46,16,'#f5cb77'],[56,16,'#f5cb77'],[46,6,'#f5cb77'],[56,6,'#f5cb77']];
     for (const [x,y,c] of pieces) { rect(ctx,c,x,y,9,9); rect(ctx,'#ffffff59',x,y,9,2); }
+  } else if (kind === 'mines') {
+    for (let i=0;i<25;i+=1) {
+      const x=33+i%5*12, y=10+Math.floor(i/5)*12;
+      const open = [6,7,8,11,12,13,16,17].includes(i);
+      rect(ctx,open?'#182f39':'#497c83',x,y,11,11);
+      if (open && i%3===1) {
+        ctx.fillStyle='#91e4d8';
+        ctx.font='bold 9px monospace';
+        ctx.fillText(String(i%2+1),x+3,y+9);
+      }
+    }
+    rect(ctx,'#ffd285',83,25,2,8);
+    rect(ctx,'#ffd285',85,25,5,4);
+  } else if (kind === 'circuit') {
+    for (let i=0;i<16;i+=1) rect(ctx,'#5c5250',34+i%4*14,12+Math.floor(i/4)*14,13,13);
+    for (const [x,y,w,h] of [[39,31,42,3],[53,17,3,45],[67,31,3,17],[67,45,16,3]]) rect(ctx,'#ebc684',x,y,w,h);
+    rect(ctx,'#93e1b0',51,29,7,7);
+    rect(ctx,'#f4d79a',38,29,6,6);
+    rect(ctx,'#f4d79a',80,44,6,6);
+  } else if (kind === 'xiangqi' || kind === 'junqi') {
+    rect(ctx,kind==='xiangqi'?'#c29368':'#586d57',32,8,60,64);
+    for (let i=1;i<6;i+=1) {
+      rect(ctx,'#40463f',32+i*10,8,1,64);
+      rect(ctx,'#40463f',32,8+i*10,60,1);
+    }
+    for (const [x,y,color] of [[46,21,'#e9c496'],[66,21,'#e9c496'],[76,49,'#c47163'],[56,59,'#c47163'],[46,49,'#c47163']]) {
+      if (kind==='junqi') rect(ctx,color,x-4,y-3,9,7);
+      else { ctx.fillStyle=color; ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2); ctx.fill(); }
+    }
   } else {
     rect(ctx, '#ba936c', 29, 5, 65, 64);
     for (let i = 0; i < 7; i += 1) {

@@ -1,13 +1,15 @@
 const SCOPE = self.registration.scope;
 const CACHE_PREFIX = `pocket-arcade:${SCOPE}:`;
-const CACHE = `${CACHE_PREFIX}3.2.0`;
+const CACHE = `${CACHE_PREFIX}3.3.0`;
 const APP = [
   './', './index.html', './manifest.webmanifest',
   './assets/icon.svg', './assets/icon-192.png', './assets/icon-512.png',
   './assets/icon-maskable-512.png',
   './src/style.css', './src/app.js', './src/pwa.js', './src/audio.js', './src/art.js', './src/engine.js',
   './src/games/trail.js', './src/games/trail-levels.js', './src/games/crates.js', './src/games/tanks.js',
-  './src/games/blocks.js', './src/games/gomoku.js',
+  './src/games/blocks.js', './src/games/gomoku.js', './src/games/puzzle-grid.js',
+  './src/games/mines.js', './src/games/circuit.js', './src/games/duel.js',
+  './src/games/xiangqi.js', './src/games/junqi.js',
 ];
 
 const HOME = new URL('./', SCOPE);

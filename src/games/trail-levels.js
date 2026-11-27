@@ -36,3 +36,33 @@ export const TRAILS = [
     flag: 658,
   },
 ];
+
+function route(name, islands, lifts = null) {
+  let x = 0;
+  const ground = [], ledges = [], pods = [], drones = [];
+  for (const [index, [length, gap, perch, patrol]] of islands.entries()) {
+    const end = x + length;
+    ground.push([x,end]);
+    if (perch) ledges.push([x+Math.round(length*.52),perch,36+index%3*7]);
+    if (gap >= 52) ledges.push([end-12,127-index%3*5,34]);
+    if (index % 3 === 0) pods.push([x+Math.round(length*.33),114,index === 0 ? 'shard' : 'shield']);
+    if (patrol) drones.push([x+Math.round(length*.28),x+Math.round(length*.70)]);
+    x = end + gap;
+  }
+  const middle = Math.floor(ground.length / 2);
+  const stage = { name, ground, ledges, pods, drones, flag:ground[middle][0]+18 };
+  if (lifts) stage.lift = [ground[lifts[0]][1]+5,139,33,lifts[1],lifts[2]];
+  return stage;
+}
+
+// Each island specifies its width, the gap after it, optional ledge height, and patrol presence.
+TRAILS.push(
+  route('松铃集散站', [[173,31,124],[152,42,115,1],[136,31,124],[179,44,109,1],[149,38,121],[218,0,110,1]]),
+  route('雾河踏石', [[147,46,121],[110,55,0],[129,54,112,1],[142,39,117],[120,56,0],[162,46,105,1],[196,0,118]], [4,36,3.5]),
+  route('旧轨道回廊', [[182,38,117],[154,45,105,1],[162,51,113,1],[151,42,126],[197,46,111,1],[153,39,109,1],[208,0,104]]),
+  route('萤火竖井', [[159,51,121],[140,39,102],[164,59,118,1],[164,46,101],[181,60,114,1],[158,51,106],[223,0,97,1]], [2,58,4.2]),
+  route('红砂巡线', [[167,49,117],[149,56,0,1],[155,46,111,1],[171,50,119,1],[188,57,107],[156,42,115,1],[149,46,103,1],[224,0,111]], [4,47,3.2]),
+  route('回声群岛', [[161,54,118],[108,31,0],[124,64,116],[156,48,106,1],[137,55,0,1],[121,50,101],[152,61,118,1],[239,0,102,1]], [2,57,4.4]),
+  route('青铜风门', [[165,42,121],[163,60,103,1],[153,38,126,1],[179,55,106],[164,64,104,1],[151,51,115,1],[172,52,110],[227,0,96,1]], [4,58,3.8]),
+  route('远空信标', [[174,43,119],[160,46,103,1],[171,48,115],[150,43,0,1],[191,50,111],[170,44,107,1],[171,56,105],[159,44,116,1],[262,0,109,1]], [6,52,4.6]),
+);

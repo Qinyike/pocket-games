@@ -21,15 +21,22 @@ export function mountTrail(api) {
   const canvas = api.canvas(width,height,'风谷探险场景');
   const ctx = canvas.getContext('2d');
   let index = 0, collected, removed, level, solids, gems, pods, lift, player, checkpoint, death, deaths, camera, mode, elapsed, coyote, buffer, clock, endX;
+  let touchBoost = false;
   let records = load('trail-expedition', {});
   const controls = api.controls({ ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',ArrowUp:'jump',KeyW:'jump',Space:'jump',ShiftLeft:'run',ShiftRight:'run',KeyX:'run',KeyP:'pause',Escape:'pause' }, [
-    ['left','←',false,'左移'],['right','→',false,'右移'],['run','加速',false],['jump','跳跃',true],['pause','暂停'],
-  ], action => {
+    ['left','←',false,'左移'],['right','→',false,'右移'],['run','加速',false,'加速','toggle'],['jump','跳跃',true],['pause','暂停'],
+  ], (action, fromButton) => {
+    if (action === 'run' && fromButton && boostButton) {
+      touchBoost = !touchBoost;
+      boostButton.setAttribute('aria-pressed', String(touchBoost));
+    }
     if (action === 'jump') buffer = .13;
     if (action === 'pause') pause();
   }, () => mode === 'play');
 
-  const selectLevel = api.select('选择关卡', TRAILS.map((_,i) => [i,'第 '+(i+1)+' 关']), value => start(Number(value)));
+  const boostButton = api.stage?.parentElement.querySelector('[data-action="run"]');
+  boostButton?.setAttribute('aria-pressed','false');
+  const selectLevel = api.select('选择关卡', TRAILS.map(({name},i) => [i,`${i+1} · ${name}`]), value => start(Number(value)));
 
   function score() {
     api.hud(['关卡', (index+1) + ' / ' + TRAILS.length], ['碎片', collected.size + ' / ' + (gems.length + pods.filter(pod => pod.kind === 'shard').length)], ['护盾', player.shield ? '有' : '—'], ['失足', deaths], ['用时', clock + ' 秒']);
@@ -108,7 +115,7 @@ export function mountTrail(api) {
     }
     const axis = Number(controls.held('right')) - Number(controls.held('left'));
     if (axis) player.direction = axis;
-    const running = controls.held('run');
+    const running = touchBoost || controls.held('run');
     const speed = axis * (running ? 184 : 132);
     const acceleration = player.grounded ? (axis ? 930 : 1160) : 640;
     player.vx += clamp(speed - player.vx, -acceleration * dt, acceleration * dt);

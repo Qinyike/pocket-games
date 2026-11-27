@@ -27,24 +27,41 @@ export function winLine(board,id,stone) {
   return [];
 }
 
-export function machineMove(board) {
+export function machineMove(board,difficulty='normal') {
   const center=at(7,7);
   if (!board.some(Boolean)) return center;
   const weights=[[0,0,0],[0,1,2],[0,8,35],[0,48,350],[0,540,3000]];
-  let best=-1,bestScore=-1;
+  let best=-1,bestScore=-Infinity;
+  const choices=[];
   for (let id=0;id<board.length;id+=1) {
     if (board[id]) continue;
     if (winLine(board,id,2).length) return id;
     const blocksWin=winLine(board,id,1).length>0;
-    let score=blocksWin?100000:0;
+    let score=blocksWin?(difficulty==='easy'?400:100000):0;
     for (const [dx,dy] of AXES) {
       for (const stone of [1,2]) {
         const {cells,open}=line(board,id,stone,dx,dy);
-        score+=(weights[Math.min(4,cells.length)][open])*(stone===2?1.03:1);
+        score+=(weights[Math.min(4,cells.length)][open])*(stone===2?1.03:difficulty==='easy'?.32:1);
       }
     }
     score-=.05*(Math.abs(id%SIZE-7)+Math.abs(Math.floor(id/SIZE)-7));
+    choices.push([id,score]);
     if (score>bestScore) { best=id; bestScore=score; }
+  }
+  if (difficulty !== 'hard' || bestScore >= 100000 || best < 0) return best;
+  const candidates=choices.sort((a,b)=>b[1]-a[1]).slice(0,10);
+  let strongest=-Infinity;
+  for (const [id,score] of candidates) {
+    const next=board.slice();
+    next[id]=2;
+    let myThreats=0, rivalThreats=0;
+    for (let cell=0;cell<next.length;cell+=1) {
+      if (next[cell]) continue;
+      if (winLine(next,cell,2).length) myThreats+=1;
+      if (winLine(next,cell,1).length) rivalThreats+=1;
+    }
+    const evaluated = score + (myThreats>1?25000:myThreats*190) - rivalThreats*18000;
+    if (evaluated>strongest) { strongest=evaluated; best=id; }
   }
   return best;
 }
@@ -55,7 +72,10 @@ export function mountGomoku(api) {
   grid.setAttribute('role','group');
   grid.setAttribute('aria-label','五子棋棋盘');
   api.stage.append(grid);
-  let board,history,turn,result,winning,focusId,timer,mode='ai';
+  const resume=load('gomoku:match',null);
+  let mode=resume?.mode==='local'?'local':'ai';
+  let difficulty=['easy','normal','hard'].includes(resume?.difficulty)?resume.difficulty:'normal';
+  let board,history,turn,result,winning,focusId,timer;
   let wins=load('gomoku',0);
   const undo=document.createElement('button');
   undo.className='action';
@@ -77,7 +97,16 @@ export function mountGomoku(api) {
     const next=at(clamp(focusId%SIZE+dx,0,SIZE-1),clamp(Math.floor(focusId/SIZE)+dy,0,SIZE-1));
     cells[next].focus();
   },{signal:api.signal});
-  api.select('对局',[['ai','人机'],['local','双人']],value => { mode=value; start(); });
+  const selectMode=api.select('对局',[['ai','人机'],['local','双人']],value => { mode=value; start(); });
+  const selectDifficulty=api.select('五子棋难度',[['easy','入门'],['normal','标准'],['hard','困难']],value => {
+    difficulty=value;
+    persist();
+  });
+
+  function persist() { save('gomoku:match',{mode,difficulty,history,turn,result}); }
+  function scheduleMachine() {
+    if (!result && mode==='ai' && turn===2) timer=setTimeout(()=>place(machineMove(board,difficulty),true),260);
+  }
   function setFocus(id) {
     if (focusId!==undefined) cells[focusId].tabIndex=-1;
     focusId=id;
@@ -86,7 +115,7 @@ export function mountGomoku(api) {
   function start() {
     clearTimeout(timer);
     board=new Uint8Array(SIZE*SIZE); history=[]; turn=1; result=0; winning=[];
-    api.hideOverlay(); setFocus(at(7,7)); render();
+    api.hideOverlay(); setFocus(at(7,7)); persist(); render();
   }
   function render() {
     api.hud(['回合',result?'已结束':turn===1?'黑方':'白方'],['手数',history.length],...(mode==='ai'?[['人机胜局',wins]]:[]));
@@ -102,7 +131,7 @@ export function mountGomoku(api) {
     }
   }
   function place(id,computer=false) {
-    if (board[id] || result || (mode==='ai' && turn===2 && !computer)) return;
+    if (id<0 || board[id] || result || (mode==='ai' && turn===2 && !computer)) return;
     board[id]=turn; history.push(id); api.play(turn === 1 ? 'black' : 'white');
     winning=winLine(board,id,turn);
     if (winning.length) {
@@ -110,12 +139,13 @@ export function mountGomoku(api) {
       if (mode==='ai' && result===1) { wins+=1; save('gomoku',wins); }
     } else if (history.length===board.length) result=3;
     else turn=3-turn;
+    persist();
     render();
     if (result) {
       api.play(result === 3 ? 'draw' : 'clear');
       const text=result===3?'和棋':result===1?'黑方获胜':'白方获胜';
       api.overlay(text,`本局 ${history.length} 手`,[['再来一局',start],['查看棋盘',api.hideOverlay]]);
-    } else if (mode==='ai' && turn===2) timer=setTimeout(() => place(machineMove(board),true),260);
+    } else scheduleMachine();
   }
   undo.onclick=() => {
     if (!history.length || result) return;
@@ -126,9 +156,24 @@ export function mountGomoku(api) {
       if (turn===1 && history.length) board[history.pop()]=0;
       turn=1;
     } else turn=3-turn;
+    persist();
     render();
   };
   api.restart(start);
   api.signal.addEventListener('abort',() => clearTimeout(timer),{once:true});
-  start();
+  selectMode(mode);
+  selectDifficulty(difficulty);
+  if (Array.isArray(resume?.history) && resume.history.length<=SIZE*SIZE
+    && resume.history.every(id=>Number.isInteger(id) && id>=0 && id<SIZE*SIZE)
+    && new Set(resume.history).size===resume.history.length) {
+    history=resume.history;
+    board=new Uint8Array(SIZE*SIZE);
+    history.forEach((cell,index)=>{ board[cell]=index%2+1; });
+    turn=resume.turn===2?2:1;
+    result=[1,2,3].includes(resume.result)?resume.result:0;
+    winning=(result===1||result===2)&&history.length?winLine(board,history.at(-1),result):[];
+    setFocus(history.at(-1) ?? at(7,7));
+    render();
+    scheduleMachine();
+  } else start();
 }
