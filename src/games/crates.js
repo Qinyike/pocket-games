@@ -57,6 +57,7 @@ export function mountCrates(api) {
     index=next; board=warehouse(WAREHOUSES[next]); history=[]; repeat=null; ended=false; direction=1;
     controls.clear(); api.hideOverlay();
     canvas.width=board.width*unit; canvas.height=board.height*unit;
+    api.stage.style.setProperty('--arena-ratio', board.width / board.height);
     setLevel(index);
     updateDisplay();
   }

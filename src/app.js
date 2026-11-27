@@ -139,7 +139,7 @@ function gameView(game, signal) {
     }
     updateGameFullscreen();
     window.scrollTo(0, 0);
-    const target = stage.querySelector('.overlay button, .stage [tabindex="0"]') ?? stage;
+    const target = stage.querySelector('.overlay button') ?? stage.querySelector('[tabindex="0"]') ?? stage;
     target.focus({ preventScroll:true });
   };
   document.addEventListener('fullscreenchange', updateGameFullscreen, { signal });
@@ -168,6 +168,7 @@ function gameView(game, signal) {
       const canvas = document.createElement('canvas');
       canvas.width = width;
       canvas.height = height;
+      stage.style.setProperty('--arena-ratio', width / height);
       canvas.setAttribute('role', 'img');
       canvas.setAttribute('aria-label', label);
       stage.prepend(canvas);
@@ -182,7 +183,7 @@ function gameView(game, signal) {
         button.textContent = label;
         button.setAttribute('aria-label', name ?? label);
         button.dataset.action = id;
-        const directional = game.action && ['left','right','up','down'].includes(id);
+        const directional = (game.action || game.id === 'blocks') && ['left','right','up','down'].includes(id);
         touch.querySelector(directional ? '.dpad' : '.action-buttons').append(button);
         if (type === 'toggle') button.onclick = () => { if (active()) action(id, true); };
         else controls.bind(button, id);

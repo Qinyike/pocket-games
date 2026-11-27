@@ -21,9 +21,41 @@ export function clearRows(board) {
 }
 
 export function mountBlocks(api) {
-  const canvas=api.canvas(243,282,'落块棋盘和预览');
+  const canvas=api.canvas(COLS*SIZE+12,ROWS*SIZE+12,'落块棋盘');
   api.stage.classList.add('blocks-stage');
   const ctx=canvas.getContext('2d');
+  const previews=document.createElement('div');
+  previews.className='block-previews';
+  previews.innerHTML='<div><span>下一块</span><div class="block-preview" role="img"></div></div><div><span>暂存</span><div class="block-preview" role="img"></div></div>';
+  const [nextPreview,holdPreview]=previews.querySelectorAll('.block-preview');
+  api.stage.append(previews);
+  function preview(element,kind,label) {
+    if (element.dataset.kind===String(kind)) return;
+    element.dataset.kind=String(kind);
+    element.setAttribute('aria-label',label+(kind===null?'为空':'方块'));
+    if (kind===null) {
+      element.textContent='—';
+      return;
+    }
+    const {cells,color}=SHAPES[kind];
+    const xs=cells.map(([x])=>x), ys=cells.map(([,y])=>y);
+    const left=Math.min(...xs), top=Math.min(...ys);
+    const shape=document.createElement('div');
+    shape.style.setProperty('--cols',Math.max(...xs)-left+1);
+    shape.style.setProperty('--rows',Math.max(...ys)-top+1);
+    shape.style.setProperty('--piece-color',color);
+    for (const [x,y] of cells) {
+      const block=document.createElement('span');
+      block.style.gridColumn=x-left+1;
+      block.style.gridRow=y-top+1;
+      shape.append(block);
+    }
+    element.replaceChildren(shape);
+  }
+  function updatePreviews() {
+    preview(nextPreview,queued,'下一块');
+    preview(holdPreview,held,'暂存');
+  }
   let board, piece, queued, held, usedHold, bag, score, lines, mode, gravity, lock, lockResets, repeat, combo;
   let best=load('blocks',0);
   const control=api.controls({ArrowLeft:'left',ArrowRight:'right',ArrowUp:'rotate',ArrowDown:'down',KeyX:'rotate',KeyZ:'counter',Space:'drop',KeyC:'hold',KeyP:'pause',Escape:'pause'},[
@@ -44,7 +76,7 @@ export function mountBlocks(api) {
     lock=0; gravity=0; lockResets=0;
     if (!fits(piece)) end();
   }
-  function spawn() { const next=queued; queued=pull(); usedHold=false; newPiece(next); }
+  function spawn() { const next=queued; queued=pull(); usedHold=false; newPiece(next); updatePreviews(); }
   function start() {
     board=Array.from({length:ROWS},emptyRow); bag=[]; queued=pull(); held=null;
     score=lines=combo=0; mode='play'; repeat=null;
@@ -116,6 +148,7 @@ export function mountBlocks(api) {
       held=piece.kind;
       if (next===null) spawn(); else newPiece(next);
       usedHold=true;
+      updatePreviews();
       api.play('hold');
     }
   }
@@ -139,7 +172,7 @@ export function mountBlocks(api) {
     rect(ctx,color,x,y,size-1,size-1); rect(ctx,'#ffffff58',x,y,size-1,2); rect(ctx,'#00000030',x,y+size-3,size-1,2);
   }
   function draw() {
-    rect(ctx,'#14182b',0,0,243,282);
+    rect(ctx,'#14182b',0,0,canvas.width,canvas.height);
     rect(ctx,'#0d1120',5,5,COLS*SIZE+2,ROWS*SIZE+2);
     for (let y=0;y<ROWS;y+=1) for (let x=0;x<COLS;x+=1) {
       const kind=board[y][x], xx=6+x*SIZE, yy=6+y*SIZE;
@@ -154,11 +187,6 @@ export function mountBlocks(api) {
         rect(ctx,'#4d5474',xx+3,yy+3,SIZE-7,SIZE-7);
       }
       for (const [x,y] of piece.cells) if(piece.y+y>=0) tile(6+(piece.x+x)*SIZE,6+(piece.y+y)*SIZE,SHAPES[piece.kind].color);
-    }
-    for (const [label,id,y] of [['下一块',queued,12],['暂存',held,109]]) {
-      ctx.font='12px sans-serif'; ctx.fillStyle='#c7c9e5'; ctx.fillText(label,170,y+12);
-      rect(ctx,'#202741',165,y+21,70,55);
-      if (id!==null) for (const [x,yy] of SHAPES[id].cells) tile(173+x*13,y+25+yy*13,SHAPES[id].color,13);
     }
   }
   api.restart(start);
