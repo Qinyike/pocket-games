@@ -42,35 +42,52 @@ function railLink(a,b) {
   return y(a)===y(b) ? [1,5,6,10].includes(y(a)) : [0,4].includes(x(a));
 }
 
-function railPath(board,from,to,engineer) {
+function railPath(board,from,to,engineer,route) {
   if (!rail(from) || !rail(to)) return false;
   if (!engineer && x(from)!==x(to) && y(from)!==y(to)) return false;
   const visited=new Set([from]);
   const queue=[from];
-  while (queue.length) {
-    const cell=queue.pop();
+  const previous=route?new Map():null;
+  for(let head=0;head<queue.length;head++) {
+    const cell=queue[head];
     for (const [dx,dy] of offsets) {
       const col=x(cell)+dx,row=y(cell)+dy;
       if (!onBoard(col,row)) continue;
       if (!engineer && (x(from)===x(to) ? dx : dy)) continue;
       const next=row*5+col;
       if (visited.has(next) || !railLink(cell,next)) continue;
-      if (next===to) return true;
+      if (next===to) {
+        if(route) {
+          route.unshift(to);
+          for(let step=cell;step!==undefined;step=previous.get(step)) route.unshift(step);
+        }
+        return true;
+      }
       if (board[next]) continue;
       visited.add(next);
+      previous?.set(next,cell);
       queue.push(next);
     }
   }
   return false;
 }
 
-function canMove(board,from,to,flip=false) {
+function canMove(board,from,to,flip=false,route) {
   if(!Number.isInteger(to)||to<0||to>=board.length) return false;
   const unit=board[from], target=board[to];
   if (!unit || from===to || unit.side===target?.side || ['M','F'].includes(unit.type) || (!flip&&base(from)) || (junqiCamp(to) && target)) return false;
   const dx=Math.abs(x(from)-x(to)),dy=Math.abs(y(from)-y(to));
   const road=bridge(from,to) ? bridgePass(from,to) : dx+dy===1 || (dx===1 && dy===1 && (junqiCamp(from)||junqiCamp(to)));
-  return road || railPath(board,from,to,unit.type==='1');
+  if(road) {
+    route?.push(from,to);
+    return true;
+  }
+  return railPath(board,from,to,unit.type==='1',route);
+}
+
+export function junqiMoveRoute(board,from,to) {
+  const route=[];
+  return canMove(board,from,to,true,route)?route:[];
 }
 
 export function junqiBattle(attacker,defender) {

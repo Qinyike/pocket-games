@@ -113,3 +113,44 @@ test('junqi flip computer sees the locations but not the ranks of face-down piec
     assert(state.board[turn.flip]);
   }
 });
+
+test('junqi flip avoids a high-value capture when the reply loses a stronger piece', async () => {
+  const {createFlipMatch,flipComputer}=await import('../src/games/junqi-flip.js');
+  const state=createFlipMatch();
+  state.board=Array(60).fill(null);
+  for(const [index,side,type] of [[25,0,'8'],[30,1,'7'],[34,1,'9'],[21,0,'4'],[22,1,'3'],[1,0,'F'],[58,1,'F']]) {
+    state.board[index]={side,type};
+  }
+  state.shown=state.board.flatMap((piece,index)=>piece?[index]:[]);
+  state.colors=[0,1];
+  state.mines=[0,0];
+  assert.deepEqual(flipComputer(state,'easy',()=>.5),{from:25,to:30});
+  for(const level of ['normal','hard']) assert.deepEqual(flipComputer(state,level,()=>.5),{from:21,to:22});
+
+  // Tactical choices must still ignore the contents of nearby face-down pieces.
+  state.board[23]={side:0,type:'2'};
+  state.board[24]={side:1,type:'B'};
+  const swapped={...state,board:state.board.slice()};
+  [swapped.board[23],swapped.board[24]]=[swapped.board[24],swapped.board[23]];
+  assert.deepEqual(flipComputer(state,'hard',()=>.5),flipComputer(swapped,'hard',()=>.5));
+});
+
+test('junqi flip history records the actual rail turn and both pieces lost to a bomb', async () => {
+  const {createFlipMatch,playFlip}=await import('../src/games/junqi-flip.js');
+  const state=createFlipMatch();
+  state.board=Array(60).fill(null);
+  state.board[25]={side:0,type:'1'};
+  state.board[34]={side:1,type:'B'};
+  state.shown=[25,34];
+  state.colors=[0,1];
+  delete state.history;
+  delete state.captured;
+  assert(playFlip(state,25,34));
+  const action=state.history[0];
+  assert.equal(action.player,0);
+  assert.equal(action.step,1);
+  assert.equal(action.survived,false);
+  assert.deepEqual(action.route,[25,26,27,28,29,34]);
+  assert.deepEqual(state.captured,[{side:1,type:'B'},{side:0,type:'1'}]);
+  assert.deepEqual(JSON.parse(JSON.stringify(state)).history,state.history);
+});

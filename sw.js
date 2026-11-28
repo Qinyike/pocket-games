@@ -1,6 +1,6 @@
 const SCOPE = self.registration.scope;
 const CACHE_PREFIX = `pocket-arcade:${SCOPE}:`;
-const CACHE = `${CACHE_PREFIX}3.4.2`;
+const CACHE = `${CACHE_PREFIX}3.4.3`;
 const APP = [
   './', './index.html', './manifest.webmanifest',
   './assets/icon.svg', './assets/icon-192.png', './assets/icon-512.png',
