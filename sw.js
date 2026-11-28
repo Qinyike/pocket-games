@@ -1,6 +1,6 @@
 const SCOPE = self.registration.scope;
 const CACHE_PREFIX = `pocket-arcade:${SCOPE}:`;
-const CACHE = `${CACHE_PREFIX}3.4.1`;
+const CACHE = `${CACHE_PREFIX}3.4.2`;
 const APP = [
   './', './index.html', './manifest.webmanifest',
   './assets/icon.svg', './assets/icon-192.png', './assets/icon-512.png',
@@ -9,7 +9,7 @@ const APP = [
   './src/games/trail.js', './src/games/trail-levels.js', './src/games/crates.js', './src/games/tanks.js',
   './src/games/blocks.js', './src/games/gomoku.js', './src/games/puzzle-grid.js',
   './src/games/mines.js', './src/games/circuit.js', './src/games/duel.js',
-  './src/games/xiangqi.js', './src/games/junqi.js',
+  './src/games/xiangqi.js', './src/games/junqi.js', './src/games/junqi-flip.js',
   './src/games/expedition.js', './src/games/bastion.js', './src/games/harbor.js',
 ];
 

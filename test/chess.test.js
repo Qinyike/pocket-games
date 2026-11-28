@@ -56,3 +56,60 @@ test('junqi guards camps, only lets engineers turn on rails, and restricts deplo
   assert.equal(swapDeployment(army,0,flag,55),null);
   assert(swapDeployment(army,0,flag,flag===56?58:56));
 });
+
+
+test('junqi flip shuffles 50 hidden pieces and determines colors per player', async () => {
+  const {createFlipMatch,revealFlip}=await import('../src/games/junqi-flip.js');
+  const state=createFlipMatch(()=>.37);
+  assert.equal(state.board.filter(Boolean).length,50);
+  assert.equal(state.board.filter(piece=>piece?.side===0).length,25);
+  assert.equal(state.shown.length,0);
+  const red=state.board.flatMap((piece,index)=>piece?.side===0?[index]:[]);
+  const blue=state.board.findIndex(piece=>piece?.side===1);
+  assert(revealFlip(state,red[0]));
+  assert(revealFlip(state,blue));
+  assert.deepEqual(state.colors,[null,null]);
+  assert(revealFlip(state,red[1]));
+  assert.deepEqual(state.colors,[0,1]);
+  assert.equal(state.side,1);
+  assert.equal(revealFlip(state,red[1]),false);
+});
+
+test('junqi flip requires a revealed target and clearing mines before taking the flag', async () => {
+  const {createFlipMatch,flipMove,playFlip}=await import('../src/games/junqi-flip.js');
+  const state=createFlipMatch();
+  state.board=Array(60).fill(null);
+  state.board[25]={side:0,type:'1'};
+  state.board[30]={side:1,type:'M'};
+  state.board[31]={side:1,type:'F'};
+  state.shown=[25,31];
+  state.colors=[0,1];
+  state.mines=[0,1];
+  assert.equal(playFlip(state,25,30),false);
+  state.shown.push(30);
+  const flagGuard=state.board.slice();
+  flagGuard[30]=flagGuard[25];
+  assert.equal(flipMove(flagGuard,30,31,0,[0,1]),null);
+  assert(flipMove(flagGuard,30,31,0,[0,0]));
+  assert(playFlip(state,25,30));
+  assert.equal(state.mines[1],0);
+  assert.equal(state.board[30].type,'1');
+  assert.equal(state.winner,0);
+  const board=Array(60).fill(null);
+  board[19]={side:0,type:'2'};
+  board[24]={side:1,type:'7'};
+  assert.equal(flipMove(board,19,24,0,[0,0]),null);
+  board[19]={side:0,type:'9'};
+  assert(flipMove(board,19,24,0,[0,0]));
+});
+
+test('junqi flip computer sees the locations but not the ranks of face-down pieces', async () => {
+  const {createFlipMatch,flipComputer}=await import('../src/games/junqi-flip.js');
+  const state=createFlipMatch(()=>.37);
+  const other={...state,board:state.board.map(piece=>piece&&{side:1-piece.side,type:piece.type})};
+  for(const mode of ['easy','normal','hard']) {
+    const turn=flipComputer(state,mode,()=>.51);
+    assert.deepEqual(turn,flipComputer(other,mode,()=>.51));
+    assert(state.board[turn.flip]);
+  }
+});

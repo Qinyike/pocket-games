@@ -1,4 +1,5 @@
 import { load, save } from '../engine.js';
+import { drawJunqiGrid } from './junqi.js';
 import { puzzleGrid } from './puzzle-grid.js';
 
 const sideName = side=>side===0?'红方':'黑方';
@@ -11,8 +12,11 @@ export function mountDuel(api,rules) {
   const key=()=>rules.id+(mode==='ai'?':ai-match':':match');
   const cells=puzzleGrid(api.stage,rules.cols,rules.label,choose,null,rules.rows);
   const grid=cells[0].parentElement;
-  grid.classList.add('duel-grid');
-  grid.insertAdjacentHTML('afterbegin',`<svg class="duel-diagram" viewBox="0 0 ${rules.cols} ${rules.rows}" preserveAspectRatio="none" aria-hidden="true">${rules.diagram()}</svg>`);
+  if(rules.id==='junqi') drawJunqiGrid(grid,cells);
+  else {
+    grid.classList.add('duel-grid');
+    grid.insertAdjacentHTML('afterbegin',`<svg class="duel-diagram" viewBox="0 0 ${rules.cols} ${rules.rows}" preserveAspectRatio="none" aria-hidden="true">${rules.diagram()}</svg>`);
+  }
   const deployment=rules.rearrange && document.createElement('button');
   if(deployment) {
     deployment.type='button';

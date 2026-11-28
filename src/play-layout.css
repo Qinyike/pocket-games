@@ -6,7 +6,7 @@
 }
 
 .game[data-game=xiangqi] { --board-ratio: .897; }
-.game[data-game=junqi] { --board-ratio: .628; }
+.game[data-game=junqi] { --board-ratio: .65; }
 .game[data-game=blocks] { --arena-height: min(75dvh, 820px); }
 
 .game .stage {

@@ -12,6 +12,7 @@ import { mountCircuit } from './games/circuit.js';
 import { mountDuel } from './games/duel.js';
 import { xiangqi } from './games/xiangqi.js';
 import { junqi } from './games/junqi.js';
+import { mountJunqiFlip } from './games/junqi-flip.js';
 import { mountExpedition } from './games/expedition.js';
 import { mountBastion } from './games/bastion.js';
 import { mountHarbor } from './games/harbor.js';
@@ -28,9 +29,24 @@ const games = [
   { id:'mines', title:'扫雷', type:'数字推理', color:'#73dfd5', goal:'翻开所有安全格。首次翻格的九宫格安全，数字代表周边雷数。标记正确后可再点已翻开的数字快速展开。', keys:'点击或回车翻格 · 右键或 F 插旗 · 触屏可切换插旗模式', mount:mountMines },
   { id:'circuit', title:'电路接通', type:'连线解谜', color:'#f5ce70', goal:'旋转线路，从中央电源把电送到所有节点。每次重开生成新棋盘。', keys:'方向键选格 · 回车或点击转动', mount:mountCircuit },
   { id:'xiangqi', title:'中国象棋', type:'人机 · 双人', color:'#f4b18f', goal:'红先黑后。须解将，不能送将或让双方将帅在空线上照面。将死或困毙获胜。自动处理单方长将与自然限着，其他长捉棋例由双方协商。', keys:'点击棋子，再点击落点。方向键选格，回车确认。', mount:api=>mountDuel(api,xiangqi) },
-  { id:'junqi', title:'军棋', type:'暗棋 · 人机', color:'#b8df91', goal:'默认与电脑打暗棋，也可本机双人。沿公路走一步，铁路走直线，工兵可转弯。司令阵亡后军旗亮明。夺旗或使对方无棋可走即胜。', keys:'开局可点「调整布阵」。点击己方棋子和目标格；双人模式换手后点「开始回合」。', mount:api=>mountDuel(api,junqi) },
+  { id:'junqi', title:'军棋', type:'翻翻棋 · 人机', color:'#b8df91', goal:'双方轮流翻棋。各自连续两次翻到同色者先确定阵营。定色后可翻棋或走明子，排完对方地雷才能夺旗。', keys:'点击暗子翻棋；选己方明子查看合法走点。棋盘上圆点为兵站、圆圈为行营、粗线为铁路。', mount:api=>mountMilitary(api,false) },
 ];
 
+function mountMilitary(api,dark) {
+  const select=api.select('军棋玩法',[['flip','翻翻棋'],['dark','布阵暗棋']],value=>{
+    location.hash=value==='dark'?'#/junqi/dark':'#/junqi';
+  });
+  select(dark?'dark':'flip');
+  if(dark) mountDuel(api,junqi);
+  else mountJunqiFlip(api);
+}
+
+const darkJunqi={
+  ...games.find(game=>game.id==='junqi'),
+  goal:'沿公路走一步，铁路走直线，工兵可转弯。行营内棋子受保护。司令阵亡后军旗亮明。夺旗或使对方无棋可走即胜。',
+  keys:'开局可点「调整布阵」。双人模式换手遮挡棋面。',
+  mount:api=>mountMilitary(api,true),
+};
 const app = document.querySelector('#app');
 const sound = document.querySelector('#sound');
 const fullscreen = document.querySelector('#fullscreen');
@@ -292,7 +308,7 @@ function route() {
   session?.abort();
   session = new AbortController();
   delete document.body.dataset.mode;
-  const game = games.find(item => location.hash === '#/' + item.id);
+  const game = location.hash === '#/junqi/dark' ? darkJunqi : games.find(item => location.hash === '#/' + item.id);
   audio.select(game?.id);
   document.title = game ? `${game.title} · 口袋游戏厅` : '口袋游戏厅 · Pocket Arcade';
   if (game) gameView(game, session.signal);
